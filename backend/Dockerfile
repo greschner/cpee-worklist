@@ -3,6 +3,7 @@ FROM node:15
 # Create app directory
 WORKDIR /usr/src/app
 
+# set environment variables
 ENV PORT=8001
 ENV NODE_ENV=production
 

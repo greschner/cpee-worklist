@@ -4,7 +4,7 @@ FROM node:15
 WORKDIR /usr/src/app
 
 # set environment variables
-ENV PORT=8001
+ENV PORT=8000
 ENV NODE_ENV=production
 
 # Install app dependencies

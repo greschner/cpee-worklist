@@ -1,19 +1,21 @@
 version: "3.9"
 services:
     backend:
-        build: ./backend
+        image: derbuda/ms-worklist
         container_name: backend
         restart: always
-        volumes:
-            - "./backend:/usr/src/app"
-        ports:
-            - 8000:8000
 
     frontend:
-        build: ./frontend
+        image: derbuda/ms-worklistf
         container_name: frontend
         restart: always
-        volumes:
-            - "./frontend:/app"
+
+    nginx:
+        image: derbuda/ms-worklistr
+        container_name: nginx
+        restart: always
+        depends_on:
+            - "frontend"
+            - "backend"
         ports:
-            - 8080:80
+            - "80:80"

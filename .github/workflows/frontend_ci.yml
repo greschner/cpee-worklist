@@ -26,7 +26,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
-          path: /tmp/.buildx-cache
+          path: /tmp/.buildx-cache-frontend
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -48,8 +48,8 @@ jobs:
           context: ./frontend/
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/ms-worklistf:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: type=local,src=/tmp/.buildx-cache-frontend
+          cache-to: type=local,dest=/tmp/.buildx-cache-frontend
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

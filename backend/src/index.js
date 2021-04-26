@@ -2,12 +2,16 @@
 import express from 'express';
 import createError from 'http-errors';
 import logger from './logger.js';
+import receiveRoutes from './routes/receive.js';
 
 // set listening port
 const PORT = process.env.PORT || 4000;
 
 const app = express();
 app.use(express.json());
+
+// routes
+app.use('/', receiveRoutes);
 
 // catch 404 and forward to error handler
 app.use((_req, _res, next) => {

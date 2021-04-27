@@ -3,11 +3,17 @@ import express from 'express';
 import createError from 'http-errors';
 import logger from './logger.js';
 import receiveRoutes from './routes/receive.js';
+import db from './db.js';
 
 // set listening port
 const PORT = process.env.PORT || 4000;
 
+// connect to database
+db();
+
 const app = express();
+
+// set body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -22,6 +28,7 @@ app.use((_req, _res, next) => {
 // error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  console.error(err);
   res.status(err.status || 500).json({ error: err.message });
 });
 

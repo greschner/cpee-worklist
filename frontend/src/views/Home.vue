@@ -1,18 +1,38 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+      <el-table
+      :data="tableData">
+<el-table-column
+        prop="date"
+        label="Date"
+        width="180">
+      </el-table-column>
+      </el-table>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue';
+import { watchEffect } from 'vue';
+import worklistApi from '../api/worklist';
 
 export default {
   name: 'Home',
-  components: {
-    HelloWorld,
+  data: () => ({
+    tableData: null,
+  }),
+  mounted() {
+    watchEffect(async () => {
+      try {
+        const { data } = await worklistApi.getTask();
+        this.tableData = data;
+      } catch (error) {
+        this.$notify.error({
+          title: 'Error',
+          message: `${error.message}: ${error.response.data.error || ''}`,
+        });
+      }
+    });
+  },
+  methods: {
   },
 };
 </script>

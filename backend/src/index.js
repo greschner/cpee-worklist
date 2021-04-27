@@ -1,6 +1,7 @@
 // created with lots of love by Jan André Greschner
 import express from 'express';
 import createError from 'http-errors';
+import cors from 'cors';
 import logger from './logger.js';
 import receiveRoutes from './routes/receive.js';
 import db from './db.js';
@@ -17,6 +18,9 @@ const app = express();
 // set body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// setup cors
+app.use(cors());
 
 // routes
 app.use('/', receiveRoutes);

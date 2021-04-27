@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 4000;
 // connect to database
 db();
 
+// create object of express module
 const app = express();
 
 // set body parser

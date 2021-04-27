@@ -2,6 +2,7 @@ import express from 'express';
 import axios from 'axios';
 import Task from './taskModel.js';
 import idValidation from '../middleware/idValidation.js';
+import logger from '../logger.js';
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ const valID = idValidation((req) => Task.findById(req.params.id));
 
 router.post('/receive', async (req, res, next) => {
   try {
-    await Task.create({
+    const t = await Task.create({
       label: req.headers['cpee-label'],
       activity: req.headers['cpee-activity'],
       callback: req.headers['cpee-callback'],
@@ -20,13 +21,11 @@ router.post('/receive', async (req, res, next) => {
       instanceUrl: req.headers['cpee-instance-url'],
       body: req.body,
     });
+    logger.info(`New Task created: ${t}`);
     res.set('CPEE-CALLBACK', 'true').sendStatus(200);
   } catch (error) {
     next(error);
   }
-  console.log(req.headers);
-  console.log(req.query);
-  console.log(req.body);
 });
 
 router.get('/', async (req, res, next) => {
@@ -44,9 +43,12 @@ router.get('/:id', valID, async (req, res) => {
 
 router.put('/:id', valID, async (req, res, next) => {
   try {
-    const { data } = await axios.put(req.result.callback, req.body);
+    logger.info('Send PUT request');
+    logger.info(`Callback-URL: ${req.result.callback}`);
+    logger.info(`Body: ${req.body}`);
+    await axios.put(req.result.callback, req.body);
     await Task.findByIdAndDelete(req.result._id);
-    res.json(data);
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }

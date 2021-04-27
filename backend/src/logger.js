@@ -23,7 +23,7 @@ const logger = winston.createLogger({
   ],
 });
 
-if (process.env.NODE_ENV === 'production') {
+/* if (process.env.NODE_ENV === 'production') {
   logger.add(new winston.transports.File({
     filename: 'logs/app.log',
     maxsize: 1048576,
@@ -32,6 +32,6 @@ if (process.env.NODE_ENV === 'production') {
       winston.format.json(),
     ),
   }));
-}
+} */
 
 export default logger;

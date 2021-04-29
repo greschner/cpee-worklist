@@ -9,6 +9,10 @@ const router = express.Router();
 // middlerware to validate the id
 const valID = idValidation((req) => Task.findById(req.params.id));
 
+function randomInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 router.post('/receive', async (req, res, next) => {
   try {
     const t = await Task.create({
@@ -23,6 +27,14 @@ router.post('/receive', async (req, res, next) => {
     });
     logger.info(`New Task created: ${t}`);
     res.set('CPEE-CALLBACK', 'true').sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/96plates', async (req, res, next) => {
+  try {
+    res.json({ count: randomInteger(0, 4) });
   } catch (error) {
     next(error);
   }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const sampleURL = `${process.env.VUE_APP_BACKEND}`;
+const sampleURL = '/backend';
 
 export default {
   getTask(id) {

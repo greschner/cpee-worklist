@@ -1,7 +1,6 @@
 FROM node:latest as build-stage
 WORKDIR /app
-ARG VUE_APP_BACKEND
-ENV VUE_APP_BACKEND $VUE_APP_BACKEND
+ENV VUE_APP_BACKEND=https://greschner.azurewebsites.net/backend
 COPY package*.json ./
 RUN npm install
 COPY ./ .

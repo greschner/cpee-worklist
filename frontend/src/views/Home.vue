@@ -19,6 +19,19 @@
       label="Timestamp"
       sortable
     />
+    <el-table-column
+      label="Operations"
+    >
+      <template #default="scope">
+        <el-button
+          size="mini"
+          type="primary"
+          @click="execute(scope.row)"
+        >
+          Execute
+        </el-button>
+      </template>
+    </el-table-column>
   </el-table>
 </template>
 
@@ -30,11 +43,23 @@ import df from '../utils/dateFormatter';
 
 export default {
   name: 'Home',
+  inject: ['socket'],
   data: () => ({
     tableData: null,
   }),
+  created() {
+    this.socket.on('getTasks', () => {
+      this.getTask();
+    });
+  },
   mounted() {
     watchEffect(async () => {
+      this.getTask();
+    });
+  },
+  methods: {
+    df,
+    async getTask() {
       try {
         const { data } = await worklistApi.getTask();
         this.tableData = data;
@@ -44,10 +69,17 @@ export default {
           message: `${error.message}: ${error.response.data.error || ''}`,
         });
       }
-    });
-  },
-  methods: {
-    df,
+    },
+    async execute({ _id }) {
+      try {
+        await worklistApi.executeTask(_id);
+      } catch (error) {
+        this.$notify.error({
+          title: 'Error',
+          message: `${error.message}: ${error.response.data.error || ''}`,
+        });
+      }
+    },
   },
 };
 </script>

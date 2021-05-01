@@ -1,4 +1,6 @@
 // created with lots of love by Jan André Greschner
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import express from 'express';
 import createError from 'http-errors';
 import cors from 'cors';
@@ -14,6 +16,21 @@ db();
 
 // create object of express module
 const app = express();
+const server = createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  },
+});
+
+io.on('connection', (socket) => {
+  logger.info('connected');
+
+  socket.on('disconnect', () => {
+    logger.info('client disconnected');
+  });
+});
 
 // set body parser
 app.use(express.json());
@@ -23,7 +40,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // routes
-app.use('/', receiveRoutes);
+const a = receiveRoutes(io);
+app.use('/', a);
 
 // catch 404 and forward to error handler
 app.use((_req, _res, next) => {
@@ -38,6 +56,6 @@ app.use((err, req, res, next) => {
 });
 
 // listen on port
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });

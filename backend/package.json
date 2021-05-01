@@ -19,6 +19,7 @@
     "http-errors": "^1.7.2",
     "joi": "^17.4.0",
     "mongoose": "^5.12.5",
+    "socket.io": "^4.0.1",
     "winston": "^3.3.3"
   },
   "devDependencies": {

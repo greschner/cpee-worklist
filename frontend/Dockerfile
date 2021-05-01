@@ -3,6 +3,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY ./ .
+ARG VUE_APP_BACKEND
+ENV VUE_APP_BACKEND $VUE_APP_BACKEND
 RUN npm run build
 
 FROM nginx as production-stage

@@ -26,7 +26,7 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
   logger.info('connected');
-
+  io.set('match origin protocol', true);
   socket.on('disconnect', () => {
     logger.info('client disconnected');
   });

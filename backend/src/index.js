@@ -26,6 +26,7 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
   logger.info('connected');
+  io.set('transports', ['websocket']);
 
   socket.on('disconnect', () => {
     logger.info('client disconnected');

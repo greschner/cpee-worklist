@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const sampleURL = '/backend';
+const sampleURL = 'https://greschner.azurewebsites.net/backend/';
 
 export default {
   getTask(id) {

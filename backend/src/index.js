@@ -19,6 +19,7 @@ const app = express();
 const server = createServer(app);
 
 const io = new Server(server, {
+  perMessageDeflate: false,
   cors: {
     origin: '*',
   },

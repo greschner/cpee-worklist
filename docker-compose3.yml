@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+    logging:
+        build: ./logging
+        container_name: logging
+        restart: always
+        ports:
+            - "8005:8005"

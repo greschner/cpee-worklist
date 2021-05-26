@@ -13,6 +13,7 @@ const logger = winston.createLogger({
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
+        winston.format.splat(),
         winston.format.align(),
         winston.format.timestamp({
           format: 'DD.MM.YYYY HH:mm:ss',

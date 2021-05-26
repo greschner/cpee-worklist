@@ -3,11 +3,18 @@ import express from 'express';
 import createError from 'http-errors';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import https from 'https';
+import fs from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 import logger from './logger.js';
 import receiveRoute from './routes/receive.js';
 
 // read .env file, parse the contents, assign it to process.env
 dotenv.config();
+
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // set listening port
 const PORT = process.env.PORT || 4000;
@@ -36,6 +43,12 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message });
 });
 
-app.listen(PORT, () => {
+const options = {
+  key: fs.readFileSync(`${__dirname}/cert/key.pem`),
+  cert: fs.readFileSync(`${__dirname}/cert/cert.pem`),
+  passphrase: process.env.PASSPHRASE,
+};
+
+https.createServer(options, app).listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });

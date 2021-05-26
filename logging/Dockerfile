@@ -6,6 +6,8 @@ WORKDIR /usr/src/app
 # set environment variables
 ENV PORT=8005
 ENV NODE_ENV=production
+ENV PASSPHRASE=LabMus2020#
+ENV TZ=Europe/Vienna
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied

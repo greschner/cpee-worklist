@@ -14,6 +14,16 @@
       sortable
     />
     <el-table-column
+      prop="body.process"
+      label="Process"
+      sortable
+    />
+    <el-table-column
+      prop="instance"
+      label="Instance"
+      sortable
+    />
+    <el-table-column
       prop="timestamp"
       :formatter="df"
       label="Timestamp"

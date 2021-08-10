@@ -15,6 +15,22 @@ const sendEventsToAll = (data) => {
   clients.forEach((client) => client.res.write(`data: ${JSON.stringify(data)}\n\n`));
 };
 
+const groubByTimestamp = (format) => {
+  let dateFormat = '%Y-%m-%d';
+
+  if (format === 'y') {
+    dateFormat = '%Y';
+  } else if (format === 'm') {
+    dateFormat = '%Y-%m';
+  } else if (format === 'w') {
+    dateFormat = '%Y-%V';
+  } else if (format === 'h') {
+    dateFormat = '%Y-%m-%d %H:00';
+  }
+
+  return { $dateToString: { format: dateFormat, date: '$timestamp' } };
+};
+
 // middlerware to validate the id
 const valID = idValidation(({ params }) => loggingModel.findById(params.id));
 
@@ -28,7 +44,7 @@ router.post('/', schemaValidation(receiveSchema.POST, 'body'), crudTemplateMid((
 // get all logging entries
 router.get('/', crudTemplateMid(async ({
   query: {
-    id, name, user, mac, sid, sort = 'timestamp', order = -1, page, limit, start, end,
+    id, name, user, mac, sid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format,
   },
 }) => {
   const q = {
@@ -44,6 +60,7 @@ router.get('/', crudTemplateMid(async ({
   const [{ data, pagination }] = await loggingModel.aggregate([
     { $match: q },
     ...sort ? [{ $sort: { [sort]: parseInt(order, 10) } }] : [],
+    ...groupby ? [{ $group: { _id: groupby === 'timestamp' ? groubByTimestamp(format) : `$${groupby}`, count: { $sum: 1 } } }] : [],
     {
       $facet: {
         data: [ // pagination
@@ -61,12 +78,6 @@ router.get('/', crudTemplateMid(async ({
     count: pagination.length ? pagination[0].count : 0,
   };
 }));
-
-// get logging object by id
-router.get('/:id', schemaValidation(receiveSchema.params, 'params'), valID, ({ result }, res) => res.json(result));
-
-// get object property
-router.get('/:id/:key', schemaValidation(receiveSchema.params, 'params'), valID, ({ result, params: { key } }, res, next) => (result[key] ? res.send(result[key]) : next(createError.NotFound())));
 
 // get number of active sse clients
 router.get('/status', (request, response) => response.json({ clients: clients.length }));

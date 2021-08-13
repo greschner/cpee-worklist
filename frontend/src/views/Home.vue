@@ -58,9 +58,9 @@ export default {
     tableData: null,
   }),
   created() {
-    this.socket.on('getTasks', () => {
+  /*  this.socket.on('getTasks', () => {
       this.getTask();
-    });
+    }); */
   },
   mounted() {
     watchEffect(async () => {

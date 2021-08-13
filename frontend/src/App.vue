@@ -22,6 +22,11 @@ export default {
 };
 </script>
 
-<style>
-
+<style scoped>
+.el-main{
+  padding: 10px;
+}
+.el-header{
+  padding: 0 10px;
+}
 </style>

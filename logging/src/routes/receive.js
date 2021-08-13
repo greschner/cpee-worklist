@@ -60,7 +60,8 @@ router.get('/', crudTemplateMid(async ({
   const [{ data, pagination }] = await loggingModel.aggregate([
     { $match: q },
     ...sort ? [{ $sort: { [sort]: parseInt(order, 10) } }] : [],
-    ...groupby ? [{ $group: { _id: groupby === 'timestamp' ? groubByTimestamp(format) : `$${groupby}`, count: { $sum: 1 } } }] : [],
+    ...groupby ? [groupby === 'timestamp' ? { $group: { _id: groubByTimestamp(format), count: { $sum: 1 } } } : { $sortByCount: `$${groupby}` }] : [],
+    ...groupby === 'timestamp' ? [{ $sort: { _id: -1 } }] : [],
     {
       $facet: {
         data: [ // pagination

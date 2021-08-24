@@ -6,6 +6,7 @@ import receiveSchema from '../schemata/receiveSchema.js';
 import loggingModel from '../model/logging.js';
 import crudTemplateMid from '../middleware/crudTemplate.js';
 import idValidation from '../middleware/idValidation.js';
+// import authenticateJWT from '../middleware/authJWT.js';
 
 const router = express.Router();
 
@@ -34,6 +35,12 @@ const groubByTimestamp = (format) => {
 // middlerware to validate the id
 const valID = idValidation(({ params }) => loggingModel.findById(params.id));
 
+/*
+// secure endpoints on production environment
+if (process.env.NODE_ENV === 'production') {
+  router.use(authenticateJWT);
+} */
+
 // store logging information
 router.post('/', schemaValidation(receiveSchema.POST, 'body'), crudTemplateMid(({ body }) => {
   logger.info('%o', body); // log to console
@@ -47,7 +54,7 @@ router.get('/', crudTemplateMid(async ({
     id, name, user, mac, sid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format,
   },
 }) => {
-  const q = {
+  const q = { // match
     ...id && { id: { $in: Array.isArray(id) ? id : [id] } },
     ...name && {
       name: { $in: Array.isArray(name) ? name : [name] },
@@ -63,7 +70,7 @@ router.get('/', crudTemplateMid(async ({
   };
   const [{ data, pagination }] = await loggingModel.aggregate([
     { $match: q },
-    ...sort ? [{ $sort: { [sort]: parseInt(order, 10) } }] : [],
+    ...sort ? [{ $sort: { [sort]: parseInt(order, 10) } }] : [], // sort
     ...groupby ? [groupby === 'timestamp' ? { $group: { _id: groubByTimestamp(format), count: { $sum: 1 } } } : { $sortByCount: `$${groupby}` }] : [],
     ...groupby === 'timestamp' ? [{ $sort: { _id: -1 } }] : [],
     {

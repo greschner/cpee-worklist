@@ -1,4 +1,12 @@
 <template>
+  <el-row justify="end">
+    <el-col :span="6">
+      <el-input
+        v-model="search"
+        placeholder="Type to search after sampleid..."
+      />
+    </el-col>
+  </el-row>
   <el-table
     ref="table"
     row-key="_id"
@@ -20,16 +28,21 @@
     </el-table-column>
     <el-table-column
       prop="id"
+      column-key="id"
       label="ID"
       sortable="custom"
+      :filters="filters.idFilter"
     />
     <el-table-column
       prop="name"
+      column-key="name"
       label="Name"
       sortable="custom"
+      :filters="filters.nameFilter"
     />
     <el-table-column
       prop="timestamp"
+      column-key="timestamp"
       label="Timestamp"
       :formatter="df"
       sortable="custom"
@@ -38,10 +51,12 @@
       prop="user"
       label="User"
       sortable="custom"
+      column-key="user"
       :filters="filters.userFilter"
     />
     <el-table-column
       prop="macaddress"
+      column-key="macaddress"
       label="Mac-Address"
       sortable="custom"
     />
@@ -75,6 +90,7 @@ export default {
     tableData: [],
     tableHeight: null,
     loadingBtn: false,
+    search: '',
     pagination: {
       pagesize: 50,
       currentpage: 1,
@@ -84,12 +100,14 @@ export default {
       field: null,
       order: null,
     },
-    cUserFilter: [],
     filters: {
       userFilter: [],
       nameFilter: [],
       idFilter: [],
       user: null,
+      cUserFilter: [],
+      cNameFilter: [],
+      cIdFilter: [],
     },
   }),
   async mounted() {
@@ -103,19 +121,25 @@ export default {
         this.pagination.currentpage,
         this.sort.field,
         oFunc(this.sort.order),
+        this.filters.cUserFilter,
+        this.filters.cNameFilter,
+        this.filters.cIdFilter,
+        this.search,
       );
     });
     this.filters.userFilter = await this.filterGroupBy('user');
+    this.filters.nameFilter = await this.filterGroupBy('name');
+    this.filters.idFilter = await this.filterGroupBy('id');
   },
   methods: {
     oFunc,
     df,
     errorMessage,
     successMessage,
-    async getLogs(limit, page, sort, order, user) {
+    async getLogs(limit, page, sort, order, user, name, id, sid) {
       try {
         const { data: { data, count } } = await LogApi.getLogs({
-          limit, page, sort, order, user,
+          limit, page, sort, order, user, name, id, sid,
         });
         this.tableData = data;
         this.pagination.itemscount = count;
@@ -137,7 +161,13 @@ export default {
     },
     onFilterChange(filters) {
       if (filters.user) {
-        this.userFilter = filters.user;
+        this.filters.cUserFilter = filters.user;
+      }
+      if (filters.name) {
+        this.filters.cNameFilter = filters.name;
+      }
+      if (filters.id) {
+        this.filters.cIdFilter = filters.id;
       }
     },
   },

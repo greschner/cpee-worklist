@@ -48,9 +48,13 @@ router.get('/', crudTemplateMid(async ({
   },
 }) => {
   const q = {
-    ...id && { id },
-    ...name && { name: { $regex: name, $options: 'i' } }, // equal to LIKE in SQL, option 'i' for case insensitive
-    ...user && { user },
+    ...id && { id: { $in: Array.isArray(id) ? id : [id] } },
+    ...name && {
+      name: { $in: Array.isArray(name) ? name : [name] },
+    }, // equal to LIKE in SQL, option 'i' for case insensitive
+    ...user && {
+      user: { $in: Array.isArray(user) ? user : [user] },
+    },
     ...mac && { mac },
     ...sid && { 'body.sampleid': { $regex: sid, $options: 'i' } },
     ...(start || end) && {
@@ -79,6 +83,12 @@ router.get('/', crudTemplateMid(async ({
     count: pagination.length ? pagination[0].count : 0,
   };
 }));
+
+// get logging object by id
+router.get('/:id', schemaValidation(receiveSchema.params, 'params'), valID, ({ result }, res) => res.json(result));
+
+// get object property
+router.get('/:id/:key', schemaValidation(receiveSchema.params, 'params'), valID, ({ result, params: { key } }, res, next) => (result[key] ? res.send(result[key]) : next(createError.NotFound())));
 
 // get number of active sse clients
 router.get('/status', (request, response) => response.json({ clients: clients.length }));

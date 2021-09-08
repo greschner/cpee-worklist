@@ -23,6 +23,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // set listening port
 const PORT = process.env.PORT || 4000;
 
+// init express
 const app = express();
 
 // set body parser

@@ -1,15 +1,16 @@
 import mongoose from 'mongoose';
+import uriFormat from 'mongodb-uri';
 import logger from './logger.js';
+
+// produce the properly encoded connection string
+function encodeMongoURI(urlString) {
+  return urlString ? uriFormat.format(uriFormat.parse(urlString)) : urlString;
+}
 
 // mongoose connection details and configs
 export default () => {
   mongoose
-    .connect(process.env.MONGO_DB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-    })
+    .connect(encodeMongoURI(process.env.MONGO_DB_URI))
     .then(() => {
       logger.info('Connection to database successful!');
     })

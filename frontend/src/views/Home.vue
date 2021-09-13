@@ -53,7 +53,7 @@ import df from '../utils/dateFormatter';
 
 export default {
   name: 'Home',
-  inject: ['socket'],
+  // inject: ['socket'],
   data: () => ({
     tableData: null,
   }),

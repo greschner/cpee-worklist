@@ -4,7 +4,7 @@ import logger from './logger.js';
 
 // produce the properly encoded connection string
 function encodeMongoURI(urlString) {
-  return urlString ? uriFormat.format(uriFormat.parse(urlString)) : urlString;
+  return urlString && uriFormat.format(uriFormat.parse(urlString));
 }
 
 // mongoose connection details and configs

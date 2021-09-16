@@ -10,7 +10,7 @@ import idValidation from '../middleware/idValidation.js';
 
 const router = express.Router();
 
-const clients = [];
+let clients = [];
 
 const sendEventsToAll = (data) => {
   clients.forEach((client) => client.res.write(`data: ${JSON.stringify(data)}\n\n`));
@@ -42,10 +42,11 @@ if (process.env.NODE_ENV === 'production') {
 } */
 
 // store logging information
-router.post('/', schemaValidation(receiveSchema.POST, 'body'), crudTemplateMid(({ body }) => {
+router.post('/', schemaValidation(receiveSchema.POST, 'body'), crudTemplateMid(async ({ body }) => {
   logger.info('%o', body); // log to console
-  // sendEventsToAll({ body });
-  return loggingModel.create(body); // store request body to db
+  const result = await loggingModel.create(body); // store request body to db
+  sendEventsToAll(result);
+  return result;
 }));
 
 // get all logging entries
@@ -91,23 +92,14 @@ router.get('/', crudTemplateMid(async ({
   };
 }));
 
-// get logging object by id
-router.get('/:id', schemaValidation(receiveSchema.params, 'params'), valID, ({ result }, res) => res.json(result));
-
-// get object property
-router.get('/:id/:key', schemaValidation(receiveSchema.params, 'params'), valID, ({ result, params: { key } }, res, next) => (result[key] ? res.send(result[key]) : next(createError.NotFound())));
-
-// get number of active sse clients
-router.get('/status', (request, response) => response.json({ clients: clients.length }));
-
-/* router.get('/sse', (req, res) => {
+router.get('/sse', (req, res) => {
   res.writeHead(200, {
     Connection: 'keep-alive',
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
   });
 
-  res.write(`data: ${JSON.stringify({ value: 1220 })}\n\n`);
+  // res.write(`data: ${JSON.stringify({ value: 1220 })}\n\n`);
 
   const clientId = Date.now();
 
@@ -122,6 +114,15 @@ router.get('/status', (request, response) => response.json({ clients: clients.le
     logger.info(`${clientId} Connection closed`);
     clients = clients.filter((client) => client.id !== clientId);
   });
-}); */
+});
+
+// get logging object by id
+router.get('/:id', schemaValidation(receiveSchema.params, 'params'), valID, ({ result }, res) => res.json(result));
+
+// get object property
+router.get('/:id/:key', schemaValidation(receiveSchema.params, 'params'), valID, ({ result, params: { key } }, res, next) => (result[key] ? res.send(result[key]) : next(createError.NotFound())));
+
+// get number of active sse clients
+router.get('/status', (_request, response) => response.json({ clients: clients.length }));
 
 export default router;

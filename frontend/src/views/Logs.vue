@@ -4,6 +4,7 @@
       <el-input
         v-model="search"
         placeholder="Type to search after sampleid..."
+        clearable
       />
     </el-col>
   </el-row>
@@ -70,7 +71,7 @@
       <el-pagination
         v-model:currentPage="pagination.currentpage"
         v-model:page-size="pagination.pagesize"
-        :page-sizes="[50, 100, 200, 500]"
+        :page-sizes="[10, 50, 100, 200, 500]"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pagination.itemscount"
       />
@@ -84,6 +85,7 @@ import LogApi from '../api/logs';
 import oFunc from '../utils/sort';
 import df from '../utils/dateFormatter';
 import { errorMessage, successMessage } from '../utils/notifications';
+import setupStream from '../api/sse';
 
 export default {
   data: () => ({
@@ -92,7 +94,7 @@ export default {
     loadingBtn: false,
     search: '',
     pagination: {
-      pagesize: 50,
+      pagesize: 10,
       currentpage: 1,
       itemscount: 0,
     },
@@ -109,13 +111,31 @@ export default {
       cNameFilter: [],
       cIdFilter: [],
     },
+    watchEffectTrigger: false,
   }),
+  created() {
+    this.setupStream(process.env.VUE_APP_SSE_LOGS, (event) => {
+      if (this.pagination.currentpage === 1 && !this.sort.field
+      && !this.filters.cIdFilter.length && !this.filters.cNameFilter.length
+      && !this.filters.cUserFilter.length && !this.search) {
+        const data = JSON.parse(event.data);
+        this.tableData.unshift(data);
+        if (this.pagination.itemscount >= this.pagination.pagesize) {
+          this.tableData.pop();
+        }
+        this.pagination.itemscount += 1;
+      } else {
+        this.watchEffectTrigger = !this.watchEffectTrigger;
+      }
+    });
+  },
   async mounted() {
     this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
     window.addEventListener('resize', () => {
       this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
     });
     watchEffect(() => {
+      this.watchEffectTrigger = !this.watchEffectTrigger;
       this.getLogs(
         this.pagination.pagesize,
         this.pagination.currentpage,
@@ -136,6 +156,7 @@ export default {
     df,
     errorMessage,
     successMessage,
+    setupStream,
     async getLogs(limit, page, sort, order, user, name, id, sid) {
       try {
         const { data: { data, count } } = await LogApi.getLogs({

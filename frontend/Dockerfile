@@ -1,6 +1,10 @@
 FROM node:latest as build-stage
 WORKDIR /app
+
 ENV VUE_APP_BACKEND=https://greschner.azurewebsites.net/backend
+ENV NODE_ENV production
+ENV TZ=Europe/Vienna
+
 COPY package*.json ./
 RUN npm install
 COPY ./ .

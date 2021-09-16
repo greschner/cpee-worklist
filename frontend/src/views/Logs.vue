@@ -42,6 +42,30 @@
       :filters="filters.nameFilter"
     />
     <el-table-column
+      prop="info"
+      column-key="info"
+      label="Info"
+    >
+      <template #default="scope">
+        <el-tag
+          v-if="scope.row.id === '9'"
+          :type="resultFormatter(scope.row.body.result)"
+          size="medium"
+        >
+          {{ resultConverter(scope.row.body.result) }}
+        </el-tag>
+        <el-tag v-else-if="['1','2','5','7'].includes(scope.row.id)">
+          {{ scope.row.body?.plateid }}
+        </el-tag>
+        <el-tag
+          v-else
+          type="info"
+        >
+          {{ scope.row.body?.sampleid }}
+        </el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column
       prop="timestamp"
       column-key="timestamp"
       label="Timestamp"
@@ -71,7 +95,7 @@
       <el-pagination
         v-model:currentPage="pagination.currentpage"
         v-model:page-size="pagination.pagesize"
-        :page-sizes="[10, 50, 100, 200, 500]"
+        :page-sizes="[100, 200, 500, 1000]"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pagination.itemscount"
       />
@@ -85,6 +109,7 @@ import LogApi from '../api/logs';
 import oFunc from '../utils/sort';
 import df from '../utils/dateFormatter';
 import { errorMessage, successMessage } from '../utils/notifications';
+import { resultFormatter, resultConverter } from '../utils/tableFormatter';
 import setupStream from '../api/sse';
 
 export default {
@@ -94,7 +119,7 @@ export default {
     loadingBtn: false,
     search: '',
     pagination: {
-      pagesize: 10,
+      pagesize: 100,
       currentpage: 1,
       itemscount: 0,
     },
@@ -157,6 +182,8 @@ export default {
     errorMessage,
     successMessage,
     setupStream,
+    resultFormatter,
+    resultConverter,
     async getLogs(limit, page, sort, order, user, name, id, sid) {
       try {
         const { data: { data, count } } = await LogApi.getLogs({

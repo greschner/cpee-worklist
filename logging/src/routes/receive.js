@@ -52,7 +52,7 @@ router.post('/', schemaValidation(receiveSchema.POST, 'body'), crudTemplateMid(a
 // get all logging entries
 router.get('/', crudTemplateMid(async ({
   query: {
-    id, name, user, mac, sid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format,
+    id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format,
   },
 }) => {
   const q = { // match
@@ -64,6 +64,7 @@ router.get('/', crudTemplateMid(async ({
       user: { $in: Array.isArray(user) ? user : [user] },
     },
     ...mac && { mac },
+    ...pid && { 'body.plateid': { $regex: pid, $options: 'i' } },
     ...sid && { 'body.sampleid': { $regex: sid, $options: 'i' } },
     ...(start || end) && {
       timestamp: { ...start && { $gte: new Date(start) }, ...end && { $lte: new Date(end) } },

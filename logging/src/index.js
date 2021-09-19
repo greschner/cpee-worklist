@@ -34,7 +34,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // routes
-app.use('/', receiveRoute);
+app.use('/log', receiveRoute);
+app.use('/favicon.ico', express.static('public/favicon.png'));
 
 // catch 404 and forward to error handler
 app.use((_req, _res, next) => {

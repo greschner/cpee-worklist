@@ -1,11 +1,27 @@
 <template>
   <el-row justify="end">
-    <el-col :span="6">
+    <el-col :span="7">
       <el-input
         v-model="search"
-        placeholder="Type to search after sampleid..."
+        prefix-icon="el-icon-search"
+        :placeholder="`Type to search after ${searchSelect === 'sid' ? 'sampleid':'plateid'}...`"
         clearable
-      />
+      >
+        <template #prepend>
+          <el-select
+            v-model="searchSelect"
+          >
+            <el-option
+              label="SampleID"
+              value="sid"
+            />
+            <el-option
+              label="PlateID"
+              value="pid"
+            />
+          </el-select>
+        </template>
+      </el-input>
     </el-col>
   </el-row>
   <el-table
@@ -118,6 +134,7 @@ export default {
     tableHeight: null,
     loadingBtn: false,
     search: '',
+    searchSelect: 'sid',
     pagination: {
       pagesize: 100,
       currentpage: 1,
@@ -149,8 +166,6 @@ export default {
           this.tableData.pop();
         }
         this.pagination.itemscount += 1;
-      } else {
-        this.watchEffectTrigger = !this.watchEffectTrigger;
       }
     });
   },
@@ -184,10 +199,10 @@ export default {
     setupStream,
     resultFormatter,
     resultConverter,
-    async getLogs(limit, page, sort, order, user, name, id, sid) {
+    async getLogs(limit, page, sort, order, user, name, id, search) {
       try {
         const { data: { data, count } } = await LogApi.getLogs({
-          limit, page, sort, order, user, name, id, sid,
+          limit, page, sort, order, user, name, id, [this.searchSelect]: search,
         });
         this.tableData = data;
         this.pagination.itemscount = count;
@@ -224,5 +239,7 @@ export default {
 </script>
 
 <style>
-
+.el-select {
+    width: 130px;
+  }
 </style>

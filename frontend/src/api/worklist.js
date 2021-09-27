@@ -4,7 +4,6 @@ const sampleURL = 'https://greschner.azurewebsites.net/backend/';
 
 export default {
   getTask(id) {
-    console.log(sampleURL);
     return id ? axios.get(`${sampleURL}/tasks/${id}`) : axios.get(sampleURL);
   },
   executeTask(id, body) {

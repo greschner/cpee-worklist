@@ -55,6 +55,26 @@ router.get('/', crudTemplateMid(async ({
     id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format,
   },
 }) => {
+  const groupByQuery = (gb, f) => {
+    if (gb === 'timestamp') {
+      return { $group: { _id: groubByTimestamp(f), count: { $sum: 1 } } };
+    }
+
+    if (['name', 'id'].includes(gb)) {
+      return {
+        $group: {
+          _id: {
+            name: '$name',
+            id: '$id',
+          },
+          count: { $sum: 1 },
+        },
+      };
+    }
+
+    return { $sortByCount: `$${groupby}` };
+  };
+
   const q = { // match
     ...id && { id: { $in: Array.isArray(id) ? id : [id] } },
     ...name && {
@@ -73,7 +93,7 @@ router.get('/', crudTemplateMid(async ({
   const [{ data, pagination }] = await loggingModel.aggregate([
     { $match: q },
     ...sort ? [{ $sort: { [sort]: parseInt(order, 10) } }] : [], // sort
-    ...groupby ? [groupby === 'timestamp' ? { $group: { _id: groubByTimestamp(format), count: { $sum: 1 } } } : { $sortByCount: `$${groupby}` }] : [],
+    ...groupby ? [groupByQuery(groupby, format)] : [],
     ...groupby === 'timestamp' ? [{ $sort: { _id: -1 } }] : [],
     {
       $facet: {

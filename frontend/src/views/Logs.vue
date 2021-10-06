@@ -217,6 +217,9 @@ export default {
     async filterGroupBy(groupby) {
       try {
         const { data: { data } } = await LogApi.getLogs({ groupby });
+        if (['id', 'name'].includes(groupby)) {
+          return data.map(({ _id }) => ({ text: _id[groupby], value: _id }));
+        }
         return data.map(({ _id }) => ({ text: _id, value: _id }));
       } catch (error) {
         return errorMessage(error);

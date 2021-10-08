@@ -20,7 +20,19 @@ const sampleschema = new Schema({
     type: String,
     required: true,
   },
-  body: {},
+  body: {
+    sampleid: {
+      type: String,
+      index: true,
+    },
+    plateid: {
+      type: String,
+      index: true,
+    },
+    position: String,
+    result: String,
+    complete: Boolean,
+  },
   timestamp: {
     type: Date,
     default: Date.now,

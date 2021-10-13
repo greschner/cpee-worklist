@@ -26,9 +26,6 @@ export default {
   },
   data: () => ({
   }),
-  watch: {
-
-  },
   created() {
     window.addEventListener('resize', this.resizeListener);
   },
@@ -37,18 +34,16 @@ export default {
   },
   mounted() {
     watchEffect(() => {
-      Plotly.react(this.$refs.plot, this.data, this.layout, this.options);
+      if (this.data) {
+        Plotly.react(this.$refs.plot, this.data, this.layout, this.options);
+      }
     });
   },
   beforeUnmount() {
     Plotly.purge(this.$el);
   },
   methods: {
-    react() {
-      Plotly.react(this.$refs.plot, this.data, this.layout, this.options);
-    },
     resizeListener() {
-      // evtl. ohne refs?!
       Plotly.Plots.resize(this.$refs.plot);
     },
   },

@@ -9,6 +9,7 @@
         start-placeholder="Start date"
         end-placeholder="End date"
         :shortcuts="shortcuts"
+        :default-time="defaultTime"
       />
     </el-col>
   </el-row>
@@ -45,7 +46,7 @@
         shadow="never"
         style="text-align: center;"
       >
-        {{ avgSamplesPerWellplate }} AVG Samples per Wellplate
+        Ø Samples per Wellplate: {{ avgSamplesPerWellplate }}
       </el-card>
     </el-col>
     <el-col :span="5">
@@ -53,24 +54,37 @@
         shadow="never"
         style="text-align: center;"
       >
-        {{ avgSampleRate }} AVG Sample rate
+        Ø Sample rate: {{ avgSampleRate }}/d
       </el-card>
     </el-col>
-    <el-col :span="5">
-      <el-card
-        shadow="never"
-        style="text-align: center;"
-      >
-        {{ posNegProportion }}
-      </el-card>
+  </el-row>
+  <el-row
+    justify="center"
+    :gutter="20"
+  >
+    <el-col :span="8">
+      <boxplot
+        v-loading="loaders.loading2"
+        :data="posNegPieChartData"
+        :layout="plots.posNegPieChart.layout"
+        :options="plots.posNegPieChart.options"
+      />
     </el-col>
-    <el-col :span="5">
-      <el-card
-        shadow="never"
-        style="text-align: center;"
-      >
-        {{ userProportion }}
-      </el-card>
+    <el-col :span="8">
+      <boxplot
+        v-loading="loaders.loading"
+        :data="userPieChartData"
+        :layout="plots.userPieChart.layout"
+        :options="plots.posNegPieChart.options"
+      />
+    </el-col>
+    <el-col :span="8">
+      <boxplot
+        v-loading="loaders.loading3"
+        :data="sampleOverTime"
+        :layout="plots.sampleOverTime.layout"
+        :options="plots.posNegPieChart.options"
+      />
     </el-col>
   </el-row>
 </template>
@@ -79,6 +93,7 @@
 import { watchEffect } from 'vue';
 import { errorMessage } from '../utils/notifications';
 import LogApi from '../api/logs';
+import Boxplot from '../components/Plot.vue';
 
 const generateDateRange = (m) => {
   const end = new Date();
@@ -91,13 +106,26 @@ const cDate = new Date();
 
 export default {
   name: 'Dashboard',
+  components: {
+    Boxplot,
+  },
   data: () => ({
     curr: new Date(),
     dateRange: [
       new Date(cDate.getFullYear(), cDate.getMonth() - 1, 1),
       new Date(cDate.getFullYear(), cDate.getMonth(), 0),
     ],
+    defaultTime: [
+      new Date(2000, 1, 1, 0, 0, 0),
+      new Date(2000, 2, 1, 23, 59, 59),
+    ],
     scannedSamples: '',
+    loaders: {
+      loading: true,
+      loading2: true,
+      loading3: true,
+    },
+    loading: true,
     scannedSamplesOverTime: [],
     createdWellplates: '',
     finnishedWellplates: '',
@@ -105,6 +133,40 @@ export default {
     gbIDUser: [],
     selectItems: {
       taskNames: [],
+    },
+    plots: {
+      posNegPieChart: {
+        layout: {
+          title: {
+            text: 'Positive/Negative Samples',
+          },
+        },
+        options: { displayModeBar: false },
+      },
+      userPieChart: {
+        layout: {
+          title: {
+            text: `User proportion of task ${this?.selectItems?.taskNames[0]}`,
+          },
+        },
+      },
+      sampleOverTime: {
+        layout: {
+          title: {
+            text: 'Scanned samples over time',
+          },
+          xaxis: {
+            tickangle: -45,
+            title: 'Date',
+            tickformat: '%d.%m.%Y',
+            tickmode: 'linear',
+
+          },
+          yaxis: {
+            title: 'Number of scanned samples',
+          },
+        },
+      },
     },
     shortcuts: [
       {
@@ -203,6 +265,46 @@ export default {
     avgSamplesPerWellplate() {
       return Math.round(this.scannedSamples / this.createdWellplates) || 0;
     },
+    userPieChartData() {
+      if (this.gbIDUser.length) {
+        const values = [];
+        const labels = [];
+        this.gbIDUser.forEach(({ count, _id: user }) => {
+          values.push(count);
+          labels.push(user);
+        });
+        return [{
+          type: 'pie',
+          values,
+          labels,
+          textinfo: 'label+percent',
+          textposition: 'auto',
+          hoverinfo: 'skip',
+          showlegend: false,
+          automargin: true,
+        }];
+      }
+      return null;
+    },
+    posNegPieChartData() {
+      if (this.gbPosNeg.length) {
+        const [a, b] = this.gbPosNeg;
+        return [{
+          type: 'pie',
+          values: [a.count, b.count],
+          labels: ['Negative', 'Positive'],
+          textinfo: 'label+percent',
+          textposition: 'auto',
+          hoverinfo: 'skip',
+          showlegend: false,
+          marker: {
+            colors: ['green', 'red'],
+          },
+          automargin: true,
+        }];
+      }
+      return null;
+    },
     avgSampleRate() {
       const [start, end] = this.dateRange;
       return Math.round(this.scannedSamples / this.datediff(start, end)) || 0;
@@ -219,6 +321,24 @@ export default {
         return posNegObj;
       }
       return posNegObj;
+    },
+    sampleOverTime() {
+      if (this.scannedSamplesOverTime) {
+        const x = [];
+        const y = [];
+        this.scannedSamplesOverTime.forEach(({ count, _id: date }) => {
+          x.push(date);
+          y.push(count);
+        });
+        return [{
+          type: 'bar',
+          x,
+          y,
+          hoverinfo: 'skip',
+          text: y.map(String),
+        }];
+      }
+      return null;
     },
     userProportion() {
       if (this.gbIDUser.length) {
@@ -243,21 +363,27 @@ export default {
         start, end, id: 2,
       }).then(({ count }) => { this.finnishedWellplates = count; });
       this.getLogs({ start, end, id: 3 }).then(({ count }) => { this.scannedSamples = count; });
+      this.loaders.loading2 = true;
       this.getLogs({
         start, end, id: 9, groupby: 'body.result',
-      }).then(({ data }) => { this.gbPosNeg = data; });
+      }).then(({ data }) => { this.gbPosNeg = data; this.loaders.loading2 = false; });
       const groupByNames = this.getLogs({ groupby: 'name' });
       const gbNamesTemp = await groupByNames;
       this.selectItems.taskNames = gbNamesTemp.data;
+      // eslint-disable-next-line prefer-destructuring
+      // eslint-disable-next-line no-underscore-dangle
+      this.plots.userPieChart.layout.title.text = `User proportion of task "${this.selectItems.taskNames[0]._id.name}"`;
+      this.loaders.loading = true;
       this.getLogs({
         // eslint-disable-next-line no-underscore-dangle
         start, end, id: this.selectItems.taskNames[0]._id.id, groupby: 'user',
-      }).then(({ data }) => { this.gbIDUser = data; });
+      }).then(({ data }) => { this.gbIDUser = data; this.loaders.loading = false; });
       // TODO: change change id?
+      this.loaders.loading3 = true;
       this.getLogs({
         // eslint-disable-next-line no-underscore-dangle
         start, end, id: 3, groupby: 'timestamp',
-      }).then(({ data }) => { this.scannedSamplesOverTime = data; });
+      }).then(({ data }) => { this.scannedSamplesOverTime = data; this.loaders.loading3 = false; });
     });
   },
   methods: {

@@ -6,12 +6,37 @@
       :layout="layout"
       :options="options"
     />
+    <boxplot
+      :data="d.data"
+      :layout="layout"
+      :options="options"
+    />
+    <boxplot
+      :data="d.data"
+      :layout="layout"
+      :options="options"
+    />
+    <boxplot
+      :data="d.data"
+      :layout="layout"
+      :options="options"
+    />
+    <boxplot
+      :data="d.data"
+      :layout="layout"
+      :options="options"
+    />
+    <boxplot
+      :data="d.data"
+      :layout="layout"
+      :options="options"
+    />
   </div>
 </template>
 
 <script>
 
-import Boxplot from '../components/plots/Plot.vue';
+import Boxplot from '../components/Plot.vue';
 
 export default {
   name: 'About',

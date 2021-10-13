@@ -4,4 +4,5 @@
     },
     "eslint.format.enable": true,
     "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs":true
 }

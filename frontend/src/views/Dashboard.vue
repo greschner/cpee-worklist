@@ -60,7 +60,6 @@
   </el-row>
   <el-row
     justify="center"
-    :gutter="20"
   >
     <el-col :span="8">
       <boxplot
@@ -68,6 +67,7 @@
         :data="posNegPieChartData"
         :layout="plots.posNegPieChart.layout"
         :options="plots.posNegPieChart.options"
+        :loading="loaders.loading2"
       />
     </el-col>
     <el-col :span="8">
@@ -76,6 +76,7 @@
         :data="userPieChartData"
         :layout="plots.userPieChart.layout"
         :options="plots.posNegPieChart.options"
+        :loading="loaders.loading"
       />
     </el-col>
     <el-col :span="8">
@@ -84,6 +85,7 @@
         :data="sampleOverTime"
         :layout="plots.sampleOverTime.layout"
         :options="plots.posNegPieChart.options"
+        :loading="loaders.loading3"
       />
     </el-col>
   </el-row>
@@ -159,7 +161,7 @@ export default {
             tickangle: -45,
             title: 'Date',
             tickformat: '%d.%m.%Y',
-            tickmode: 'linear',
+            dtick: 86400000.0,
 
           },
           yaxis: {
@@ -323,7 +325,7 @@ export default {
       return posNegObj;
     },
     sampleOverTime() {
-      if (this.scannedSamplesOverTime) {
+      if (this.scannedSamplesOverTime.length) {
         const x = [];
         const y = [];
         this.scannedSamplesOverTime.forEach(({ count, _id: date }) => {

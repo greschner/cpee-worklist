@@ -1,11 +1,9 @@
 import express from 'express';
 import createError from 'http-errors';
 import logger from '../logger.js';
-import schemaValidation from '../middleware/schemaValidation.js';
 import receiveSchema from '../schemata/receiveSchema.js';
 import loggingModel from '../model/logging.js';
-import crudTemplateMid from '../middleware/crudTemplate.js';
-import idValidation from '../middleware/idValidation.js';
+import { crudMid, idValMid, schemaValMid } from '../middleware/index.js';
 // import authenticateJWT from '../middleware/authJWT.js';
 
 const router = express.Router();
@@ -33,7 +31,7 @@ const groubByTimestamp = (format) => {
 };
 
 // middlerware to validate the id
-const valID = idValidation(({ params }) => loggingModel.findById(params.id));
+const valID = idValMid(({ params }) => loggingModel.findById(params.id));
 
 /*
 // secure endpoints on production environment
@@ -42,7 +40,7 @@ if (process.env.NODE_ENV === 'production') {
 } */
 
 // store logging information
-router.post('/', schemaValidation(receiveSchema.POST, 'body'), crudTemplateMid(async ({ body }) => {
+router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body }) => {
   logger.info('%o', body); // log to console
   const result = await loggingModel.create(body); // store request body to db
   sendEventsToAll(result);
@@ -50,7 +48,7 @@ router.post('/', schemaValidation(receiveSchema.POST, 'body'), crudTemplateMid(a
 }));
 
 // get all logging entries
-router.get('/', crudTemplateMid(async ({
+router.get('/', crudMid(async ({
   query: {
     id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format,
   },
@@ -138,10 +136,10 @@ router.get('/sse', (req, res) => {
 });
 
 // get logging object by id
-router.get('/:id', schemaValidation(receiveSchema.params, 'params'), valID, ({ result }, res) => res.json(result));
+router.get('/:id', schemaValMid(receiveSchema.params, 'params'), valID, ({ result }, res) => res.json(result));
 
 // get object property
-router.get('/:id/:key', schemaValidation(receiveSchema.params, 'params'), valID, ({ result, params: { key } }, res, next) => (result[key] ? res.send(result[key]) : next(createError.NotFound())));
+router.get('/:id/:key', schemaValMid(receiveSchema.params, 'params'), valID, ({ result, params: { key } }, res, next) => (result[key] ? res.send(result[key]) : next(createError.NotFound())));
 
 // get number of active sse clients
 router.get('/status', (_request, response) => response.json({ clients: clients.length }));

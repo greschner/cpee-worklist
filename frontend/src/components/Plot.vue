@@ -23,6 +23,11 @@ export default {
       required: false,
       default: null,
     },
+    loading: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data: () => ({
   }),
@@ -34,9 +39,30 @@ export default {
   },
   mounted() {
     watchEffect(() => {
-      if (this.data) {
-        Plotly.react(this.$refs.plot, this.data, this.layout, this.options);
+      let { layout, options } = this;
+      if (!this.data) {
+        layout = {
+          xaxis: {
+            visible: false,
+          },
+          yaxis: {
+            visible: false,
+          },
+          annotations: [
+            {
+              text: this.loading ? '' : 'No matching data found',
+              xref: 'paper',
+              yref: 'paper',
+              showarrow: false,
+              font: {
+                size: 20,
+              },
+            },
+          ],
+        };
+        options = { staticPlot: true };
       }
+      Plotly.react(this.$refs.plot, this.data, layout, options);
     });
   },
   beforeUnmount() {

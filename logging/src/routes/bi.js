@@ -1,10 +1,36 @@
 import express from 'express';
 import loggingModel from '../model/logging.js';
-import crudTemplateMid from '../middleware/crudTemplate.js';
+import { crudMid } from '../middleware/index.js';
 
 const router = express.Router();
 
-const deltaTimeGenerator = (start, end, startTask, endTask, join, grouped = false) => {
+const formatDeltatime = (format) => {
+  let divisor;
+  switch (format) {
+    case 's':
+      divisor = 1000;
+      break;
+    case 'm':
+      divisor = 60000;
+      break;
+    case 'h':
+      divisor = 3600000;
+      break;
+    case 'd':
+      divisor = 86400000;
+      break;
+    default:
+      return [];
+  }
+
+  return [{
+    $set: {
+      deltaTime: { $divide: ['$deltaTime', divisor] },
+    },
+  }];
+};
+
+const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = false, format) => {
   const q = { // match
     id: startTask,
     ...(start || end) && {
@@ -18,14 +44,14 @@ const deltaTimeGenerator = (start, end, startTask, endTask, join, grouped = fals
       $lookup: {
         from: 'loggings',
         as: 'decObj',
-        let: { joinid: `$body.${join}` },
+        let: { joinid: `$body.${joinTask}` },
         pipeline: [
           {
             $match: {
               $expr: {
                 $and: [
                   { $eq: ['$id', endTask] },
-                  { $eq: [`$body.${join}`, '$$joinid'] },
+                  { $eq: [`$body.${joinTask}`, '$$joinid'] },
                 ],
               },
             },
@@ -43,32 +69,35 @@ const deltaTimeGenerator = (start, end, startTask, endTask, join, grouped = fals
         deltaTime: { $subtract: ['$timestampExport', '$timestamp'] },
       },
     },
+    ...formatDeltatime(format),
     ...grouped ? [{
       $group: {
         _id: null,
         avgDelta: { $avg: '$deltaTime' },
         stdDev: { $stdDevSamp: '$deltaTime' },
       },
-    }] : [],
+    }] : [{ $project: { deltaTime: 1 } }],
     { $limit: 1000 },
   ];
 };
 
-router.get('/', crudTemplateMid(async ({ query: { start, end } }) => {
-  const promises = [];
-  promises.push(loggingModel.aggregate(deltaTimeGenerator(start, end, '3', '9', 'sampleid', true)));
-  promises.push(loggingModel.aggregate(deltaTimeGenerator(start, end, '1', '2', 'plateid', true)));
+router.get('/', crudMid(async ({
+  query: {
+    start, end, startTask, endTask, joinTask, grouped, format,
+  },
+}) => {
+  const isTrue = (grouped === 'true');
+  const tempResult = await loggingModel.aggregate(
+    deltaTimeGenerator(start, end, startTask, endTask, joinTask, isTrue, format),
+  );
+  // promises.push(loggingModel.aggregate(deltaTimeGenerator(start, end, '3', '9', 'sampleid', grouped)));
+  // promises.push(loggingModel.aggregate(deltaTimeGenerator(start, end, '1', '2', 'plateid', grouped)));
 
-  const [deltaSample, deltaPlate] = await Promise.all(promises);
+  if (isTrue) {
+    return tempResult[0];
+  }
 
-  const result = {
-    deltaSample: deltaSample[0],
-    deltaPlate: deltaPlate[0],
-  };
-
-  console.log(result);
-
-  return result;
+  return tempResult;
 }));
 
 export default router;

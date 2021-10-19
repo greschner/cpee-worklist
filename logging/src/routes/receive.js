@@ -118,8 +118,6 @@ router.get('/sse', (req, res) => {
     'Cache-Control': 'no-cache',
   });
 
-  // res.write(`data: ${JSON.stringify({ value: 1220 })}\n\n`);
-
   const clientId = Date.now();
 
   const newClient = {

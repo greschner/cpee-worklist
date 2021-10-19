@@ -88,6 +88,15 @@
         :loading="loaders.loading3"
       />
     </el-col>
+    <el-col :span="8">
+      <boxplot
+        v-loading="loaders.loading4"
+        :data="sampleBoxPlot"
+        :layout="plots.sampleOverTime.layout"
+        :options="plots.posNegPieChart.options"
+        :loading="loaders.loading3"
+      />
+    </el-col>
   </el-row>
 </template>
 
@@ -126,6 +135,7 @@ export default {
       loading: true,
       loading2: true,
       loading3: true,
+      loading4: true,
     },
     loading: true,
     scannedSamplesOverTime: [],
@@ -166,6 +176,13 @@ export default {
           },
           yaxis: {
             title: 'Number of scanned samples',
+          },
+        },
+      },
+      sampleBoxPlot: {
+        layout: {
+          title: {
+            text: 'Boxplot deltatime scanned - exported sample',
           },
         },
       },
@@ -349,6 +366,9 @@ export default {
       }
       return [];
     },
+    sampleBoxPlot() {
+      return null;
+    },
   },
   created() {
   /*  this.socket.on('getTasks', () => {
@@ -386,6 +406,10 @@ export default {
         // eslint-disable-next-line no-underscore-dangle
         start, end, id: 3, groupby: 'timestamp',
       }).then(({ data }) => { this.scannedSamplesOverTime = data; this.loaders.loading3 = false; });
+      this.loaders.loading4 = true;
+      this.getBi({
+
+      }).then(({ data }) => { this.scannedSamplesOverTime = data; this.loaders.loading3 = false; });
     });
   },
   methods: {
@@ -395,6 +419,15 @@ export default {
     async getLogs(queryParams) {
       try {
         const { data } = await LogApi.getLogs(queryParams);
+        return data;
+      } catch (error) {
+        console.error(error);
+        return errorMessage(error);
+      }
+    },
+    async getBi(queryParams) {
+      try {
+        const { data } = await LogApi.getBi(queryParams);
         return data;
       } catch (error) {
         console.error(error);

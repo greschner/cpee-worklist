@@ -41,6 +41,16 @@ const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = 
   return [
     { $match: q },
     {
+      $group: {
+        _id: '$body.sampleid',
+        date: { $min: '$timestamp' },
+        doc: { $first: '$$ROOT' },
+      },
+    },
+    {
+      $replaceRoot: { newRoot: { $mergeObjects: ['$doc', { timestamp: '$date' }] } },
+    },
+    {
       $lookup: {
         from: 'loggings',
         as: 'decObj',

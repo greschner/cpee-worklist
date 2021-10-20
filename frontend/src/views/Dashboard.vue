@@ -88,13 +88,26 @@
         :loading="loaders.loading3"
       />
     </el-col>
+  </el-row>
+  <el-row
+    justify="center"
+  >
     <el-col :span="8">
       <boxplot
         v-loading="loaders.loading4"
         :data="sampleBoxPlot"
-        :layout="plots.sampleOverTime.layout"
+        :layout="plots.sampleBoxPlot.layout"
         :options="plots.posNegPieChart.options"
-        :loading="loaders.loading3"
+        :loading="loaders.loading4"
+      />
+    </el-col>
+    <el-col :span="8">
+      <boxplot
+        v-loading="loaders.loading5"
+        :data="wellplateBoxPlot"
+        :layout="plots.wellPlateBoxPlot.layout"
+        :options="plots.posNegPieChart.options"
+        :loading="loaders.loading5"
       />
     </el-col>
   </el-row>
@@ -136,9 +149,12 @@ export default {
       loading2: true,
       loading3: true,
       loading4: true,
+      loading5: true,
     },
     loading: true,
     scannedSamplesOverTime: [],
+    rawSampleBoxPlot: [],
+    rawWellPlateBoxPlot: [],
     createdWellplates: '',
     finnishedWellplates: '',
     gbPosNeg: [],
@@ -182,7 +198,20 @@ export default {
       sampleBoxPlot: {
         layout: {
           title: {
-            text: 'Boxplot deltatime scanned - exported sample',
+            text: 'Deltatime scanned - exported sample',
+          },
+          yaxis: {
+            title: 'Deltatime in hours',
+          },
+        },
+      },
+      wellPlateBoxPlot: {
+        layout: {
+          title: {
+            text: 'Deltatime created - finnished wellplate',
+          },
+          yaxis: {
+            title: 'Deltatime in hours',
           },
         },
       },
@@ -367,6 +396,31 @@ export default {
       return [];
     },
     sampleBoxPlot() {
+      if (this.rawSampleBoxPlot.length) {
+        return [{
+          y: this.rawSampleBoxPlot,
+          type: 'box',
+          name: 'Set 1',
+          boxmean: 'sd',
+          marker: {
+            color: 'rgb(214,12,140)',
+          },
+        }];
+      }
+      return null;
+    },
+    wellplateBoxPlot() {
+      if (this.rawWellPlateBoxPlot.length) {
+        return [{
+          y: this.rawWellPlateBoxPlot,
+          type: 'box',
+          name: 'Set 2',
+          boxmean: 'sd',
+          marker: {
+            color: 'rgb(0,128,128)',
+          },
+        }];
+      }
       return null;
     },
   },
@@ -408,8 +462,18 @@ export default {
       }).then(({ data }) => { this.scannedSamplesOverTime = data; this.loaders.loading3 = false; });
       this.loaders.loading4 = true;
       this.getBi({
-
-      }).then(({ data }) => { this.scannedSamplesOverTime = data; this.loaders.loading3 = false; });
+        start, end, startTask: 3, endTask: 9, joinTask: 'sampleid', format: 'h',
+      }).then((data) => {
+        this.rawSampleBoxPlot = data.map((e) => e.deltaTime);
+        this.loaders.loading4 = false;
+      });
+      this.loaders.loading5 = true;
+      this.getBi({
+        start, end, startTask: 1, endTask: 2, joinTask: 'plateid', format: 'h',
+      }).then((data) => {
+        this.rawWellPlateBoxPlot = data.map((e) => e.deltaTime);
+        this.loaders.loading5 = false;
+      });
     });
   },
   methods: {

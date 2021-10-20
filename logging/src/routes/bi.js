@@ -33,6 +33,7 @@ const formatDeltatime = (format) => {
 const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = false, format) => {
   const q = { // match
     id: startTask,
+    ...(startTask === 3) && { 'body.position': { $ne: '1' } },
     ...(start || end) && {
       timestamp: { ...start && { $gte: new Date(start) }, ...end && { $lte: new Date(end) } },
     },
@@ -40,9 +41,9 @@ const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = 
 
   return [
     { $match: q },
-    {
+    { // destinct sampleid and take the one with min timestamp
       $group: {
-        _id: '$body.sampleid',
+        _id: `$body.${joinTask}`,
         date: { $min: '$timestamp' },
         doc: { $first: '$$ROOT' },
       },
@@ -69,6 +70,11 @@ const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = 
         ],
       },
     },
+    { // filter not matched documents aka not empty []
+      $match: {
+        decObj: { $ne: [] },
+      },
+    },
     {
       $set: {
         timestampExport: { $max: '$decObj.timestamp' },
@@ -79,6 +85,11 @@ const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = 
         deltaTime: { $subtract: ['$timestampExport', '$timestamp'] },
       },
     },
+    {
+      $match: {
+        deltaTime: { $gt: 0 },
+      },
+    },
     ...formatDeltatime(format),
     ...grouped ? [{
       $group: {
@@ -86,7 +97,7 @@ const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = 
         avgDelta: { $avg: '$deltaTime' },
         stdDev: { $stdDevSamp: '$deltaTime' },
       },
-    }] : [{ $project: { deltaTime: 1 } }],
+    }] : [/* { $project: { deltaTime: 1 } } */],
     { $limit: 1000 },
   ];
 };

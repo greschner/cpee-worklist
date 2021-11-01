@@ -71,6 +71,20 @@
       />
     </el-col>
     <el-col :span="8">
+      <div style="text-align: center;">
+        <el-select
+          v-model="selectItems.taskNamesSelected"
+          size="small"
+          style="width: auto;"
+        >
+          <el-option
+            v-for="item in selectItems.taskNames"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </div>
       <boxplot
         v-loading="loaders.loading"
         :data="userPieChartData"
@@ -80,6 +94,20 @@
       />
     </el-col>
     <el-col :span="8">
+      <div style="text-align: center;">
+        <el-select
+          v-model="selectItems.taskNamesSelected2"
+          size="small"
+          style="width: auto;"
+        >
+          <el-option
+            v-for="item in selectItems.taskNames"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </div>
       <boxplot
         v-loading="loaders.loading3"
         :data="sampleOverTime"
@@ -161,6 +189,8 @@ export default {
     gbIDUser: [],
     selectItems: {
       taskNames: [],
+      taskNamesSelected: null,
+      taskNamesSelected2: null,
     },
     plots: {
       posNegPieChart: {
@@ -181,10 +211,12 @@ export default {
       sampleOverTime: {
         layout: {
           title: {
-            text: 'Scanned samples over time',
+            text: 'Task: "Scanned samples" over time',
           },
           xaxis: {
             tickangle: -45,
+            /* nticks: 0, */
+            /* tickmode: 'auto', */
             title: 'Date',
             tickformat: '%d.%m.%Y',
             dtick: 86400000.0,
@@ -371,13 +403,20 @@ export default {
       return posNegObj;
     },
     sampleOverTime() {
-      if (this.scannedSamplesOverTime.length) {
+      const sLength = this.scannedSamplesOverTime.length;
+      if (sLength) {
         const x = [];
         const y = [];
         this.scannedSamplesOverTime.forEach(({ count, _id: date }) => {
           x.push(date);
           y.push(count);
         });
+
+        if (sLength < 4) {
+          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+          this.plots.sampleOverTime.layout.xaxis.dtick = '';
+        }
+
         return [{
           type: 'bar',
           x,
@@ -424,6 +463,26 @@ export default {
       return null;
     },
   },
+  watch: {
+    // eslint-disable-next-line func-names
+    'selectItems.taskNamesSelected': function (newVal) {
+      const [start, end] = this.dateRange;
+      this.plots.userPieChart.layout.title.text = `User proportion of task "${this.selectItems.taskNames.find((e) => e.id === newVal).name}"`;
+      this.loaders.loading = true;
+      this.getLogs({
+        start, end, id: newVal, groupby: 'user',
+      }).then(({ data }) => { this.gbIDUser = data; this.loaders.loading = false; });
+    },
+    // eslint-disable-next-line func-names
+    'selectItems.taskNamesSelected2': function (newVal) {
+      const [start, end] = this.dateRange;
+      this.plots.sampleOverTime.layout.title.text = `Task: "${this.selectItems.taskNames.find((e) => e.id === newVal).name}" over time`;
+      this.loaders.loading3 = true;
+      this.getLogs({
+        start, end, id: newVal, groupby: 'timestamp',
+      }).then(({ data }) => { this.scannedSamplesOverTime = data; this.loaders.loading3 = false; });
+    },
+  },
   created() {
   /*  this.socket.on('getTasks', () => {
       this.getTask();
@@ -445,20 +504,19 @@ export default {
       }).then(({ data }) => { this.gbPosNeg = data; this.loaders.loading2 = false; });
       const groupByNames = this.getLogs({ groupby: 'name' });
       const gbNamesTemp = await groupByNames;
-      this.selectItems.taskNames = gbNamesTemp.data;
-      // eslint-disable-next-line prefer-destructuring
-      // eslint-disable-next-line no-underscore-dangle
-      this.plots.userPieChart.layout.title.text = `User proportion of task "${this.selectItems.taskNames[0]._id.name}"`;
+      this.selectItems.taskNames = gbNamesTemp.data.map(({ _id: id }) => id);
+      this.selectItems.taskNamesSelected = '7';
+      this.selectItems.taskNamesSelected2 = '3';
+      this.plots.userPieChart.layout.title.text = `User proportion of task "${this.selectItems.taskNames[0].name}"`;
       this.loaders.loading = true;
       this.getLogs({
-        // eslint-disable-next-line no-underscore-dangle
-        start, end, id: this.selectItems.taskNames[0]._id.id, groupby: 'user',
+        start, end, id: this.selectItems.taskNamesSelected, groupby: 'user',
       }).then(({ data }) => { this.gbIDUser = data; this.loaders.loading = false; });
       // TODO: change change id?
       this.loaders.loading3 = true;
       this.getLogs({
         // eslint-disable-next-line no-underscore-dangle
-        start, end, id: 3, groupby: 'timestamp',
+        start, end, id: this.selectItems.taskNamesSelected2, groupby: 'timestamp',
       }).then(({ data }) => { this.scannedSamplesOverTime = data; this.loaders.loading3 = false; });
       this.loaders.loading4 = true;
       this.getBi({

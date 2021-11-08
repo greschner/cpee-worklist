@@ -111,8 +111,6 @@ router.get('/', crudMid(async ({
   const tempResult = await loggingModel.aggregate(
     deltaTimeGenerator(start, end, startTask, endTask, joinTask, isTrue, format),
   );
-  // promises.push(loggingModel.aggregate(deltaTimeGenerator(start, end, '3', '9', 'sampleid', grouped)));
-  // promises.push(loggingModel.aggregate(deltaTimeGenerator(start, end, '1', '2', 'plateid', grouped)));
 
   if (isTrue) {
     return tempResult[0];

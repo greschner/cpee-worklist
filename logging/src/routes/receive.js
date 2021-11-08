@@ -50,10 +50,19 @@ router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body
 // get all logging entries
 router.get('/', crudMid(async ({
   query: {
-    id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format,
+    id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format, distinct = false,
   },
 }) => {
   const groupByQuery = (gb, f) => {
+    if (Array.isArray(groupby)) {
+      return {
+        $group: {
+          _id: groupby.reduce((a, v) => ({ ...a, [v.replaceAll('.', '_')]: v === 'timestamp' ? groubByTimestamp(f) : `$${v}` }), {}),
+          count: { $sum: 1 },
+        },
+      };
+    }
+
     if (gb === 'timestamp') {
       return { $group: { _id: groubByTimestamp(f), count: { $sum: 1 } } };
     }
@@ -73,6 +82,8 @@ router.get('/', crudMid(async ({
     return { $sortByCount: `$${groupby}` };
   };
 
+  const isTrueDistinct = (distinct === 'true');
+
   const q = { // match
     ...id && { id: { $in: Array.isArray(id) ? id : [id] } },
     ...name && {
@@ -90,9 +101,49 @@ router.get('/', crudMid(async ({
   };
   const [{ data, pagination }] = await loggingModel.aggregate([
     { $match: q },
+    ...isTrueDistinct ? [{
+      $group: {
+        _id: '$body.sampleid',
+        doc: { $first: '$$ROOT' },
+      },
+    }, {
+      $replaceRoot: {
+        newRoot: '$doc',
+      },
+    }] : [], // distinct values of body.sampleid
     ...sort ? [{ $sort: { [sort]: parseInt(order, 10) } }] : [], // sort
     ...groupby ? [groupByQuery(groupby, format)] : [],
     ...groupby === 'timestamp' ? [{ $sort: { _id: -1 } }] : [],
+    ...Array.isArray(groupby) && groupby.length === 2 ? [{
+      $group: {
+        _id: `$_id.${groupby[0]}`,
+        counts: {
+          $push: {
+            [groupby[1].split('.').pop()]: `$_id.${groupby[1].replaceAll('.', '_')}`,
+            count: '$count',
+          },
+        },
+        total: { $sum: '$count' },
+      },
+    },
+    {
+      $sort: { _id: 1 },
+    },
+    {
+      $project: {
+        counts: {
+          $map:
+                 {
+                   input: '$counts',
+                   as: 'val',
+                   in: {
+                     result: `$$val.${groupby[1].split('.').pop()}`, count: '$$val.count', percentage: { $divide: ['$$val.count', '$total'] },
+                   },
+                 },
+        },
+        total: 1,
+      },
+    }] : [],
     {
       $facet: {
         data: [ // pagination

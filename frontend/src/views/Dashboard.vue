@@ -15,46 +15,83 @@
   </el-row>
   <el-row
     justify="center"
-    :gutter="20"
+    :gutter="10"
   >
-    <el-col :span="5">
+    <el-col :span="4">
       <el-card
+        v-loading="loaders.loading7"
         shadow="never"
-        style="text-align: center;"
+        style="text-align: center; background-color: #df6a5b;"
       >
-        {{ scannedSamples }} Samples scanned
+        <div> <fa icon="barcode" /> Samples scanned</div>
+        <div class="card-text">
+          {{ scannedSamples }}
+        </div>
       </el-card>
     </el-col>
-    <el-col :span="5">
+    <el-col :span="4">
       <el-card
+        v-loading="loaders.loading8"
         shadow="never"
-        style="text-align: center;"
+        style="text-align: center; background-color: #eeb55f;"
       >
-        {{ createdWellplates }} Wellplates created
+        <div> <fa icon="plus" /> Wellplates created</div>
+        <div class="card-text">
+          {{ createdWellplates }}
+        </div>
       </el-card>
     </el-col>
-    <el-col :span="5">
+    <el-col :span="4">
       <el-card
+        v-loading="loaders.loading6"
         shadow="never"
-        style="text-align: center;"
+        style="text-align: center; background-color: #dbdde1;"
       >
-        {{ finnishedWellplates }} Wellplates finnished
+        <div> <fa icon="check" /> Wellplates finnished</div>
+        <div class="card-text">
+          {{ finnishedWellplates }}
+        </div>
       </el-card>
     </el-col>
-    <el-col :span="5">
+    <el-col :span="4">
       <el-card
+        v-loading="loaders.loading2"
         shadow="never"
-        style="text-align: center;"
+        style="text-align: center; background-color: #81be96;"
       >
-        Ø Samples per Wellplate: {{ avgSamplesPerWellplate }}
+        <div> <fa icon="file-export" /> Exported samples</div>
+        <div class="card-text">
+          {{ sumExport }}
+        </div>
       </el-card>
     </el-col>
-    <el-col :span="5">
+  </el-row>
+  <el-row
+    justify="center"
+    :gutter="10"
+  >
+    <el-col :span="4">
       <el-card
+        v-loading="loaders.loading7 || loaders.loading8"
         shadow="never"
-        style="text-align: center;"
+        style="text-align: center; background-color: #dbdde1;"
       >
-        Ø Sample rate: {{ avgSampleRate }}/d
+        <div> Ø Samples per Wellplate</div>
+        <div class="card-text">
+          {{ avgSamplesPerWellplate }}
+        </div>
+      </el-card>
+    </el-col>
+    <el-col :span="4">
+      <el-card
+        v-loading="loaders.loading7"
+        shadow="never"
+        style="text-align: center; background-color: #dbdde1;"
+      >
+        <div>  Ø Sample rate</div>
+        <div class="card-text">
+          {{ avgSampleRate }}/d
+        </div>
       </el-card>
     </el-col>
   </el-row>
@@ -62,6 +99,21 @@
     justify="center"
   >
     <el-col :span="8">
+      <div style="text-align: center; visibility: hidden;">
+        <el-select
+          v-model="selectItems.taskNamesSelected2"
+          size="small"
+          style="width: auto;"
+          :disabled="!!!scannedSamplesOverTime.length"
+        >
+          <el-option
+            v-for="item in selectItems.taskNames"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </div>
       <boxplot
         v-loading="loaders.loading2"
         :data="posNegPieChartData"
@@ -76,6 +128,7 @@
           v-model="selectItems.taskNamesSelected"
           size="small"
           style="width: auto;"
+          :disabled="!!!gbIDUser.length"
         >
           <el-option
             v-for="item in selectItems.taskNames"
@@ -99,6 +152,7 @@
           v-model="selectItems.taskNamesSelected2"
           size="small"
           style="width: auto;"
+          :disabled="!!!scannedSamplesOverTime.length"
         >
           <el-option
             v-for="item in selectItems.taskNames"
@@ -120,6 +174,15 @@
   <el-row
     justify="center"
   >
+    <el-col :span="8">
+      <boxplot
+        v-loading="loaders.loading9"
+        :data="resultsScatter"
+        :layout="plots.resultsOverTime.layout"
+        :options="plots.posNegPieChart.options"
+        :loading="loaders.loading9"
+      />
+    </el-col>
     <el-col :span="8">
       <boxplot
         v-loading="loaders.loading4"
@@ -144,6 +207,7 @@
 <script>
 import { watchEffect } from 'vue';
 import { errorMessage } from '../utils/notifications';
+import { yaxisName } from '../utils/plot';
 import LogApi from '../api/logs';
 import Boxplot from '../components/Plot.vue';
 
@@ -164,8 +228,8 @@ export default {
   data: () => ({
     curr: new Date(),
     dateRange: [
-      new Date(cDate.getFullYear(), cDate.getMonth() - 1, 1),
-      new Date(cDate.getFullYear(), cDate.getMonth(), 0),
+      new Date(cDate.getFullYear(), cDate.getMonth() - 2, 1),
+      new Date(cDate.getFullYear(), cDate.getMonth() - 1, 0),
     ],
     defaultTime: [
       new Date(2000, 1, 1, 0, 0, 0),
@@ -178,9 +242,14 @@ export default {
       loading3: true,
       loading4: true,
       loading5: true,
+      loading6: true,
+      loading7: true,
+      loading8: true,
+      loading9: true,
     },
     loading: true,
     scannedSamplesOverTime: [],
+    resultsOverTime: [],
     rawSampleBoxPlot: [],
     rawWellPlateBoxPlot: [],
     createdWellplates: '',
@@ -205,6 +274,25 @@ export default {
         layout: {
           title: {
             text: `User proportion of task ${this?.selectItems?.taskNames[0]}`,
+          },
+        },
+      },
+      resultsOverTime: {
+        layout: {
+          title: {
+            text: 'Positive samples over time',
+          },
+          yaxis: {
+            tickformat: ',.2%',
+            title: 'Positive samples in %',
+          },
+          xaxis: {
+            tickangle: -45,
+            /* nticks: 0, */
+            /* tickmode: 'auto', */
+            title: 'Date',
+            tickformat: '%d.%m.%Y',
+            dtick: 86400000.0,
           },
         },
       },
@@ -343,7 +431,7 @@ export default {
   }),
   computed: {
     avgSamplesPerWellplate() {
-      return Math.round(this.scannedSamples / this.createdWellplates) || 0;
+      return Math.round(this.scannedSamples / this.createdWellplates) || null;
     },
     userPieChartData() {
       if (this.gbIDUser.length) {
@@ -385,9 +473,41 @@ export default {
       }
       return null;
     },
+    resultsScatter() {
+      if (this.resultsOverTime.length) {
+        const x = [];
+        const y = [];
+
+        this.resultsOverTime.forEach(({ _id: id, counts }) => {
+          x.push(id);
+          const res = counts.find(({ result }) => result === 'P');
+
+          if (res) {
+            y.push(res.percentage);
+          }
+        });
+
+        return [{
+          x,
+          y,
+          type: 'scatter',
+          marker: {
+            color: 'red',
+          },
+        }];
+      }
+      return null;
+    },
+    sumExport() {
+      if (this.gbPosNeg.length) {
+        const [a, b] = this.gbPosNeg;
+        return a.count + b.count;
+      }
+      return null;
+    },
     avgSampleRate() {
       const [start, end] = this.dateRange;
-      return Math.round(this.scannedSamples / this.datediff(start, end)) || 0;
+      return Math.round(this.scannedSamples / this.datediff(start, end)) || null;
     },
     posNegProportion() {
       const posNegObj = { N: null, P: null };
@@ -416,6 +536,10 @@ export default {
           // eslint-disable-next-line vue/no-side-effects-in-computed-properties
           this.plots.sampleOverTime.layout.xaxis.dtick = '';
         }
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+        this.plots.sampleOverTime.layout.yaxis.title = this.yaxisName(
+          this.selectItems.taskNamesSelected2,
+        );
 
         return [{
           type: 'bar',
@@ -493,11 +617,23 @@ export default {
       const start = this.dateRange[0];
       const end = this.dateRange[1];
       // parallel start of tasks
-      this.getLogs({ start, end, id: 1 }).then(({ count }) => { this.createdWellplates = count; });
+      this.loaders.loading8 = true;
+      this.getLogs({ start, end, id: 1 }).then(({ count }) => {
+        this.createdWellplates = count;
+        this.loaders.loading8 = false;
+      });
+      this.loaders.loading6 = true;
       this.getLogs({
         start, end, id: 2,
-      }).then(({ count }) => { this.finnishedWellplates = count; });
-      this.getLogs({ start, end, id: 3 }).then(({ count }) => { this.scannedSamples = count; });
+      }).then(({ count }) => {
+        this.finnishedWellplates = count;
+        this.loaders.loading6 = false;
+      });
+      this.loaders.loading7 = true;
+      this.getLogs({ start, end, id: 3 }).then(({ count }) => {
+        this.scannedSamples = count;
+        this.loaders.loading7 = false;
+      });
       this.loaders.loading2 = true;
       this.getLogs({
         start, end, id: 9, groupby: 'body.result',
@@ -532,9 +668,14 @@ export default {
         this.rawWellPlateBoxPlot = data.map((e) => e.deltaTime);
         this.loaders.loading5 = false;
       });
+      this.loaders.loading9 = true;
+      this.getLogs({
+        start, end, id: 9, groupby: ['timestamp', 'body.result'],
+      }).then(({ data }) => { this.resultsOverTime = data; this.loaders.loading9 = false; });
     });
   },
   methods: {
+    yaxisName,
     datediff(start, end) { // get number of days between two dates
       return Math.round((end - start) / (1000 * 60 * 60 * 24));
     },
@@ -562,7 +703,11 @@ export default {
 
 <style>
 .el-row{
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+}
+.card-text{
+  font-size: 30px;
+  font-weight: 500;
 }
 
 </style>

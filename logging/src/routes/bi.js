@@ -110,6 +110,7 @@ router.get('/', crudMid(async ({
   const isTrue = (grouped === 'true');
   const tempResult = await loggingModel.aggregate(
     deltaTimeGenerator(start, end, startTask, endTask, joinTask, isTrue, format),
+    { allowDiskUse: true },
   );
 
   if (isTrue) {

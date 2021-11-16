@@ -77,7 +77,7 @@ const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = 
     },
     {
       $set: {
-        timestampExport: { $max: '$decObj.timestamp' },
+        timestampExport: { $min: '$decObj.timestamp' },
       },
     },
     {

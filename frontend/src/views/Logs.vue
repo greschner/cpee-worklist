@@ -1,5 +1,13 @@
 <template>
-  <el-row justify="end">
+  <el-row justify="space-between">
+    <el-col :span="3">
+      <el-button
+        type="success"
+        @click="export1"
+      >
+        Export {{ multipleSelectionNumber ? '('+multipleSelectionNumber+')' : '' }}
+      </el-button>
+    </el-col>
     <el-col :span="7">
       <el-input
         v-model="search"
@@ -32,7 +40,13 @@
     :height="tableHeight"
     @sort-change="onSortChange"
     @filter-change="onFilterChange"
+    @selection-change="handleSelectionChange"
   >
+    <el-table-column
+      type="selection"
+      width="45"
+      :reserve-selection="true"
+    />
     <el-table-column type="expand">
       <template #default="props">
         <p
@@ -117,20 +131,104 @@
       />
     </el-col>
   </el-row>
+  <el-dialog
+    v-model="dialogVisible"
+    title="Export"
+    width="40%"
+  >
+    <el-form
+      ref="exportForm"
+      :model="exportForm"
+    >
+      <div v-if="!multipleSelectionNumber">
+        <el-form-item
+          label="Timerange"
+          label-width="80px"
+        >
+          <el-date-picker
+            v-model="exportForm.dateRange"
+            type="daterange"
+            unlink-panels
+            range-separator="To"
+            start-placeholder="Start date"
+            end-placeholder="End date"
+            :shortcuts="shortcuts"
+            :default-time="defaultTime"
+          />
+        </el-form-item>
+        <el-form-item label="Task type">
+          <el-checkbox
+            v-model="exportForm.checkAll"
+            :indeterminate="exportForm.isIndeterminate"
+            @change="handleCheckAllChange"
+          >
+            Check all
+          </el-checkbox>
+          <el-checkbox-group
+            v-model="exportForm.checkedTasks"
+            @change="handleCheckedTaskChange"
+          >
+            <el-checkbox
+              v-for="{text, value} in filters.nameFilter"
+              :key="value"
+              :label="value"
+            >
+              {{
+                text
+              }}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+      </div>
+      <el-form-item
+        label="Format"
+        label-width="70px"
+      >
+        <el-select v-model="exportForm.format">
+          <el-option
+            label="CSV"
+            value="csv"
+          />
+          <el-option
+            label="JSON"
+            value="json"
+          />
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span>
+        <el-button @click="dialogVisible = false">Cancel</el-button>
+        <el-button
+          type="primary"
+          :loading="loadingBtn"
+          @click="exp"
+        >Export<el-icon class="el-icon--right"><Download /></el-icon></el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
 import { watchEffect } from 'vue';
+import { Download } from '@element-plus/icons';
 import LogApi from '../api/logs';
 import oFunc from '../utils/sort';
+import downloadCSVData from '../utils/downloadCsv';
+import downloadJsonData from '../utils/downloadJson';
 import df from '../utils/dateFormatter';
 import { errorMessage, successMessage } from '../utils/notifications';
 import { resultFormatter, resultConverter } from '../utils/tableFormatter';
 import setupStream from '../api/sse';
+import shortcuts, { generateDateRange } from '../utils/dateShortcuts';
 
 export default {
+  components: {
+    Download,
+  },
   data: () => ({
     tableData: [],
+    shortcuts,
     tableHeight: null,
     loadingBtn: false,
     search: '',
@@ -153,7 +251,22 @@ export default {
       cNameFilter: [],
       cIdFilter: [],
     },
+    exportForm: {
+      format: 'json',
+      checkAll: true,
+      isIndeterminate: false,
+      taskOptions: [],
+      checkedTasks: [],
+      dateRange: generateDateRange(3600 * 1000 * 24 * 7),
+    },
     watchEffectTrigger: false,
+    multipleSelection: [],
+    multipleSelectionNumber: 0,
+    dialogVisible: false,
+    defaultTime: [
+      new Date(2000, 1, 1, 0, 0, 0),
+      new Date(2000, 2, 1, 23, 59, 59),
+    ],
   }),
   created() {
     this.setupStream(process.env.VUE_APP_SSE_LOGS, (event) => {
@@ -182,13 +295,15 @@ export default {
         this.sort.field,
         oFunc(this.sort.order),
         this.filters.cUserFilter,
-        this.filters.cNameFilter,
         this.filters.cIdFilter,
         this.search,
       );
     });
     this.filters.userFilter = await this.filterGroupBy('user');
     this.filters.nameFilter = await this.filterGroupBy('name');
+    const ids = this.filters.nameFilter.map(({ value }) => value);
+    this.exportForm.taskOptions = ids;
+    this.exportForm.checkedTasks = ids;
     this.filters.idFilter = await this.filterGroupBy('id');
   },
   methods: {
@@ -199,15 +314,17 @@ export default {
     setupStream,
     resultFormatter,
     resultConverter,
-    async getLogs(limit, page, sort, order, user, name, id, search) {
+    downloadCSVData,
+    downloadJsonData,
+    async getLogs(limit, page, sort, order, user, id, search) {
       try {
         const { data: { data, count } } = await LogApi.getLogs({
-          limit, page, sort, order, user, name, id, [this.searchSelect]: search,
+          limit, page, sort, order, user, id, [this.searchSelect]: search,
         });
         this.tableData = data;
         this.pagination.itemscount = count;
       } catch (error) {
-        errorMessage(error);
+        this.errorMessage(error);
       }
     },
     onSortChange({ prop, order }) {
@@ -218,7 +335,7 @@ export default {
       try {
         const { data: { data } } = await LogApi.getLogs({ groupby });
         if (['id', 'name'].includes(groupby)) {
-          return data.map(({ _id }) => ({ text: _id[groupby], value: _id }));
+          return data.map(({ _id }) => ({ text: _id[groupby], value: _id.id }));
         }
         return data.map(({ _id }) => ({ text: _id, value: _id }));
       } catch (error) {
@@ -230,11 +347,72 @@ export default {
         this.filters.cUserFilter = filters.user;
       }
       if (filters.name) {
-        this.filters.cNameFilter = filters.name;
+        this.filters.cIdFilter = filters.name;
       }
       if (filters.id) {
         this.filters.cIdFilter = filters.id;
       }
+    },
+    handleSelectionChange(rows) {
+      this.multipleSelection = rows;
+      this.multipleSelectionNumber = rows.length;
+    },
+    handleCheckAllChange(val) {
+      this.exportForm.checkedTasks = val ? this.exportForm.taskOptions : [];
+      this.exportForm.isIndeterminate = false;
+    },
+    handleCheckedTaskChange(value) {
+      const checkedCount = value.length;
+      this.exportForm.checkAll = checkedCount === this.exportForm.taskOptions.length;
+      this.exportForm.isIndeterminate = checkedCount > 0
+      && checkedCount < this.exportForm.taskOptions.length;
+    },
+    export1() {
+      this.dialogVisible = true;
+    },
+    async exp() {
+      let d = this.multipleSelection;
+      try {
+        this.loadingBtn = true;
+        if (!this.multipleSelectionNumber) {
+          const [start, end] = this.exportForm.dateRange;
+          const { data: { data } } = await LogApi.getLogs({
+            start, end, id: this.exportForm.checkedTasks,
+          });
+          if (!data.length) {
+            throw new Error('Cannot export empty object');
+          }
+          d = data;
+        }
+        if (this.exportForm.format === 'json') {
+          this.downloadJsonData(d);
+        } else {
+          this.csvLocal(d);
+        }
+        this.dialogVisible = false;
+      } catch (error) {
+        this.errorMessage(error);
+        /* this.$notify.info({
+          title: 'Info',
+          message: `${error.message}`,
+        }); */
+      } finally {
+        this.loadingBtn = false;
+      }
+    },
+    csvLocal(data) {
+      let csv = 'MongoID,ID,Name,User,Timestamp,Macaddress,SampleID,PlateID,Position,Result,Complete\n';
+      data.forEach(({
+        // eslint-disable-next-line no-unused-vars
+        _id, id, macaddress, name, timestamp, user,
+        body: {
+          sampleid, plateid, position, result, complete,
+        },
+      }) => {
+        // get all properties as comma separated string: Object.values(sampleObj).toString()
+        csv += `${_id},${id},${name},${user},${timestamp},${macaddress},${sampleid ?? ''},${plateid ?? ''},${position ?? ''},${result ?? ''},${complete ?? ''}\n`;
+      });
+      this.downloadCSVData(csv);
     },
   },
 

@@ -2,7 +2,7 @@
 const errorMessage = function (error) {
   this.$notify.error({
     title: 'Error',
-    message: `${error.message}: ${error.response.data.error || ''}`,
+    message: `${error.message}${error?.response?.data?.error ? `:${error.response.data.error}` : ''}`,
   });
 };
 
@@ -13,4 +13,11 @@ const successMessage = function (message) {
   });
 };
 
-export { errorMessage, successMessage };
+const infoMessage = function (message) {
+  this.$notify.info({
+    title: 'Info',
+    message,
+  });
+};
+
+export { errorMessage, successMessage, infoMessage };

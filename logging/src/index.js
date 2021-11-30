@@ -9,7 +9,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import db from './db.js';
 import logger from './logger.js';
-import { BiRoute, ReceiveRoute } from './routes/index.js';
+import { BiRoute, ReceiveRoute, CorrelatorRoute } from './routes/index.js';
 
 // read .env file, parse the contents, assign it to process.env
 dotenv.config();
@@ -36,6 +36,7 @@ app.use(cors());
 // routes
 app.use('/log', ReceiveRoute);
 app.use('/bi', BiRoute);
+app.use('/corr', CorrelatorRoute);
 app.use('/favicon.ico', express.static('public/favicon.png'));
 
 // catch 404 and forward to error handler

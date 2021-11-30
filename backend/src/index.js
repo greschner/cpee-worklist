@@ -4,9 +4,10 @@ import { Server } from 'socket.io';
 import express from 'express';
 import createError from 'http-errors';
 import cors from 'cors';
-import logger from './logger.js';
-import receiveRoutes from './routes/receive.js';
-import db from './db.js';
+import mongoose from 'mongoose';
+import logger from './logger';
+import { receiveRoute } from './routes';
+import db from './db';
 
 // set listening port
 const PORT = process.env.PORT || 4000;
@@ -40,7 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // routes
-const a = receiveRoutes(io);
+const a = receiveRoute(io);
 app.use('/', a);
 
 // catch 404 and forward to error handler
@@ -51,8 +52,25 @@ app.use((_req, _res, next) => {
 // error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  let error = null;
+
+  switch (true) {
+    case err instanceof createError.HttpError:
+      error = err;
+      break;
+    case err instanceof mongoose.Error.DocumentNotFoundError:
+      error = createError.NotFound(`Cannot not find: ${error.filter}`);
+      break;
+    case err instanceof mongoose.Error.CastError:
+      error = createError.BadRequest('ID must be a string of 12 bytes or a string of 24 hex characters');
+      break;
+    default:
+      error = createError.InternalServerError();
+      break;
+  }
+
   console.error(err);
-  res.status(err.status || 500).json({ error: err.message });
+  res.status(error.status || 500).json({ error: error.message });
 });
 
 // listen on port

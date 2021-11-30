@@ -30,7 +30,7 @@ const formatDeltatime = (format) => {
   }];
 };
 
-const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, grouped = false, format) => {
+const deltaTimeGenerator = (start, end, startTask, endTask, joinTask, format, grouped = false) => {
   const q = { // match
     id: startTask,
     ...(startTask === 3) && { 'body.position': { $ne: '1' } },

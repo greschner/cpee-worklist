@@ -12,6 +12,7 @@ const logger = winston.createLogger({
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
+        winston.format.errors({ stack: true }),
         winston.format.colorize(),
         winston.format.align(),
         winston.format.timestamp({

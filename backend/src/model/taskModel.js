@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const { Schema, model } = mongoose;
-// Model for task collection
 
+// Model for task collection
 const taskschema = new Schema({
   label: {
     type: String,

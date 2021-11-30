@@ -13,7 +13,6 @@
     },
     "rules": {
         "no-console": "off",
-        "no-underscore-dangle":"off",
-        "import/extensions": ["error", "always"]
+        "no-underscore-dangle":"off"
     }
 }

@@ -1,13 +1,13 @@
 import express from 'express';
 import axios from 'axios';
-import Task from './taskModel.js';
-import idValidation from '../middleware/idValidation.js';
-import logger from '../logger.js';
+import { taskModel } from '../model';
+import logger from '../logger';
+import { idValidation } from '../middleware';
 
 const router = express.Router();
 
 // middlerware to validate the id
-const valID = idValidation((req) => Task.findById(req.params.id));
+const valID = idValidation((req) => taskModel.findById(req.params.id));
 
 function randomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -16,7 +16,7 @@ function randomInteger(min, max) {
 export default (io) => {
   router.post('/receive', async (req, res, next) => {
     try {
-      const t = await Task.create({
+      const t = await taskModel.create({
         label: req.headers['cpee-label'],
         activity: req.headers['cpee-activity'],
         callback: req.headers['cpee-callback'],
@@ -42,9 +42,9 @@ export default (io) => {
     }
   });
 
-  router.get('/', async (req, res, next) => {
+  router.get('/', async (_req, res, next) => {
     try {
-      const tasks = await Task.find({}).exec() || [];
+      const tasks = await taskModel.find({}).exec() || [];
       res.json(tasks);
     } catch (error) {
       next(error);
@@ -61,7 +61,7 @@ export default (io) => {
       logger.info(`Callback-URL: ${req.result.callback}`);
       logger.info(`Body: ${req.body}`);
       await axios.put(req.result.callback, req.body);
-      await Task.findByIdAndDelete(req.result._id);
+      await taskModel.findByIdAndDelete(req.result._id);
       res.sendStatus(200);
       io.emit('getTasks');
     } catch (error) {

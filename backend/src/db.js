@@ -3,9 +3,7 @@ import uriFormat from 'mongodb-uri';
 import logger from './logger';
 
 // produce a properly encoded connection string
-function encodeMongoURI(urlString) {
-  return urlString && uriFormat.format(uriFormat.parse(urlString));
-}
+const encodeMongoURI = (urlString) => urlString && uriFormat.format(uriFormat.parse(urlString));
 
 // mongoose connection details and configs
 export default () => {

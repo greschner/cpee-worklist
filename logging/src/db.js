@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import uriFormat from 'mongodb-uri';
-import logger from './logger.js';
+import logger from './logger';
 
 // produce the properly encoded connection string
 function encodeMongoURI(urlString) {

@@ -1,5 +1,5 @@
 import createError from 'http-errors';
-import logger from '../logger.js';
+import logger from '../logger';
 
 // express middelware for validating incoming requests using Joi
 const middleware = (schema, property) => (req, _res, next) => {

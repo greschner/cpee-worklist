@@ -6,13 +6,13 @@
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_ENV=development nodemon src/index.js",
-    "start": "NODE_ENV=production node src/index.js"
+    "dev": "NODE_ENV=development nodemon --experimental-specifier-resolution=node src/index.js",
+    "start": "NODE_ENV=production node --experimental-specifier-resolution=node src/index.js"
   },
   "author": "Jan André Greschner",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^8.3.0",
+    "eslint": "^8.4.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.3",
     "nodemon": "^2.0.15"
@@ -24,10 +24,10 @@
     "express": "^4.17.1",
     "form-data": "^4.0.0",
     "http-errors": "^1.8.1",
-    "joi": "^17.4.2",
+    "joi": "^17.5.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb-uri": "^0.9.7",
-    "mongoose": "^6.0.13",
+    "mongoose": "^6.0.14",
     "winston": "^3.3.3"
   }
 }

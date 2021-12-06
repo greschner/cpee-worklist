@@ -1,9 +1,9 @@
 import express from 'express';
 import createError from 'http-errors';
-import logger from '../logger.js';
-import receiveSchema from '../schemata/receiveSchema.js';
-import loggingModel from '../model/logging.js';
-import { crudMid, idValMid, schemaValMid } from '../middleware/index.js';
+import logger from '../logger';
+import receiveSchema from '../schemata/receiveSchema';
+import loggingModel from '../model/logging';
+import { crudMid, idValMid, schemaValMid } from '../middleware';
 // import authenticateJWT from '../middleware/authJWT.js';
 
 const router = express.Router();
@@ -41,7 +41,6 @@ if (process.env.NODE_ENV === 'production') {
 
 // store logging information
 router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body }) => {
-  logger.info('%o', body); // log to console
   const result = await loggingModel.create(body); // store request body to db
   sendEventsToAll(result);
   return result;

@@ -1,6 +1,6 @@
 import express from 'express';
-import loggingModel from '../model/logging.js';
-import { crudMid } from '../middleware/index.js';
+import loggingModel from '../model/logging';
+import { crudMid } from '../middleware';
 
 const router = express.Router();
 

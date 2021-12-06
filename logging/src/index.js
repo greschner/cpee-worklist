@@ -7,9 +7,9 @@ import https from 'https';
 import fs from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import db from './db.js';
-import logger from './logger.js';
-import { BiRoute, ReceiveRoute, CorrelatorRoute } from './routes/index.js';
+import db from './db';
+import logger from './logger';
+import { BiRoute, ReceiveRoute, CorrelatorRoute } from './routes';
 
 // read .env file, parse the contents, assign it to process.env
 dotenv.config();

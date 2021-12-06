@@ -1,4 +1,4 @@
-export { default as crudMid } from './crudTemplate.js';
-export { default as authMid } from './authJWT.js';
-export { default as idValMid } from './idValidation.js';
-export { default as schemaValMid } from './schemaValidation.js';
+export { default as crudMid } from './crudTemplate';
+export { default as authMid } from './authJWT';
+export { default as idValMid } from './idValidation';
+export { default as schemaValMid } from './schemaValidation';

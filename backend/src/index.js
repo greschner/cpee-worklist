@@ -69,7 +69,7 @@ app.use((err, req, res, next) => {
       break;
   }
 
-  console.error(err);
+  logger.error(err);
   res.status(error.status || 500).json({ error: error.message });
 });
 

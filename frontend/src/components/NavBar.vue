@@ -10,6 +10,9 @@
     <el-menu-item index="/logs">
       Logs
     </el-menu-item>
+    <el-menu-item index="/tasks">
+      Task List
+    </el-menu-item>
   </el-menu>
 </template>
 

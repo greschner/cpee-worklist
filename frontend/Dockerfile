@@ -1,8 +1,6 @@
 FROM node:16 as build-stage
 WORKDIR /app
 
-ENV VUE_APP_BACKEND=https://greschner.azurewebsites.net/backend
-
 COPY package*.json ./
 RUN npm install
 COPY ./ .

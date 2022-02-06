@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const sampleURL = 'https://greschner.azurewebsites.net/backend/';
+const sampleURL = process.env.VUE_APP_CORRELATOR;
 
 export default {
   getTask(id) {

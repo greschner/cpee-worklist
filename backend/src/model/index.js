@@ -1,2 +1,2 @@
-// eslint-disable-next-line import/prefer-default-export
 export { default as taskModel } from './taskModel';
+export { default as producedModel } from './producedModel';

@@ -1,6 +1,13 @@
 import axios from 'axios';
 import FormData from 'form-data';
 
+const callbackInstance = (instance, body) => {
+  if (!instance) {
+    return null;
+  }
+  return axios.put(instance, body);
+};
+
 const startInstance = (id) => {
   if (!id) {
     return null;
@@ -50,4 +57,6 @@ const newInstanceURL = (url, behavior = 'wait_running') => {
   );
 };
 
-export { startInstance, newInstanceXML, newInstanceURL };
+export {
+  startInstance, newInstanceXML, newInstanceURL, callbackInstance,
+};

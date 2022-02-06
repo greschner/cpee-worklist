@@ -1,23 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';
 import Dashboard from '../views/Dashboard.vue';
 import Logs from '../views/Logs.vue';
+import Tasks from '../views/Tasks.vue';
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home,
-  },
-  {
     path: '/dashboard',
     name: 'Dashboard',
+    alias: '/',
     component: Dashboard,
   },
   {
     path: '/logs',
     name: 'Logs',
     component: Logs,
+  },
+  {
+    path: '/tasks',
+    name: 'Tasks',
+    component: Tasks,
   },
   {
     path: '/about',

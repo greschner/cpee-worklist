@@ -211,7 +211,7 @@
 
 <script>
 import { watchEffect } from 'vue';
-import { Download } from '@element-plus/icons';
+import { Download } from '@element-plus/icons-vue';
 import LogApi from '../api/logs';
 import oFunc from '../utils/sort';
 import downloadCSVData from '../utils/downloadCsv';

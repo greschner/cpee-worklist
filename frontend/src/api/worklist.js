@@ -1,12 +1,11 @@
 import axios from 'axios';
-
-const sampleURL = process.env.VUE_APP_CORRELATOR;
+import { CORRELATOR_URL } from '../env';
 
 export default {
   getTask(id) {
-    return id ? axios.get(`${sampleURL}/tasks/${id}`) : axios.get(sampleURL);
+    return id ? axios.get(`${CORRELATOR_URL}/tasks/${id}`) : axios.get(CORRELATOR_URL);
   },
   executeTask(id, body) {
-    return axios.put(`${sampleURL}/tasks/${id}`, body);
+    return axios.put(`${CORRELATOR_URL}/tasks/${id}`, body);
   },
 };

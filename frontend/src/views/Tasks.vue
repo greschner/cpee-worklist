@@ -38,6 +38,7 @@
 <script>
 import { watchEffect } from 'vue';
 import { errorMessage } from '../utils/notifications';
+import { CORRELATOR_URL } from '../env';
 import worklistApi from '../api/worklist';
 import df from '../utils/dateFormatter';
 
@@ -67,7 +68,7 @@ export default {
   methods: {
     df,
     setupStream() {
-      const es = new EventSource(`${process.env.VUE_APP_CORRELATOR}corr/sse`);
+      const es = new EventSource(`${CORRELATOR_URL}corr/sse`);
 
       es.onerror = (err) => console.error('EventSource failed:', err);
 

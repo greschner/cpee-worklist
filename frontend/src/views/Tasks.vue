@@ -96,7 +96,7 @@ export default {
       // eslint-disable-next-line no-underscore-dangle
       if (!this.tableIDs.includes(row._id)) {
         // eslint-disable-next-line no-underscore-dangle
-        // setTimeout(() => this.tableIDs.push(row._id), 3000);
+        setTimeout(() => this.tableIDs.push(row._id), 3000);
         return 'warning-row';
       }
       return '';

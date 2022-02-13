@@ -80,7 +80,6 @@
         <el-tag
           v-if="scope.row.id === '9'"
           :type="resultFormatter(scope.row.body.result)"
-          size="medium"
         >
           {{ resultConverter(scope.row.body.result) }}
         </el-tag>

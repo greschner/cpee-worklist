@@ -8,6 +8,11 @@ const taskschema = new Schema({
     type: String,
     required: true,
   },
+  pid: {
+    type: String,
+    required: true,
+    index: true,
+  },
   activity: {
     type: String,
     required: true,

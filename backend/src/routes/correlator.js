@@ -2,6 +2,8 @@ import express from 'express';
 import { taskModel, producedModel } from '../model';
 import logger from '../logger';
 import { callbackInstance } from '../utils/cpee';
+import { schemaValidation } from '../middleware';
+import { taskSchema } from '../schemata';
 
 const router = express.Router();
 
@@ -11,21 +13,23 @@ const sendEventsToAll = (data, event) => {
   clients.forEach((client) => client.res.write(`${event ? `event: ${event}\n` : ''}data: ${JSON.stringify(data)}\n\n`));
 };
 
-router.post('/', async (req, res, next) => {
+router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, next) => {
   try {
     // const xml = await readFile('/Users/jangreschner/dockerProjects/labMaster/logging/test_sub.xml', { encoding: 'utf8' });
 
     // cpee callback request
     if (req.headers['cpee-callback']) {
+      const { pid, ...body } = req.body;
       const task = await taskModel.create({
         label: req.headers['cpee-label'],
+        pid,
         activity: req.headers['cpee-activity'],
         callback: req.headers['cpee-callback'],
         callbackId: req.headers['cpee-callback-id'],
         instance: req.headers['cpee-instance'],
         instanceUuid: req.headers['cpee-instance-uuid'],
         instanceUrl: req.headers['cpee-instance-url'],
-        body: req.body,
+        body,
       });
       logger.info(`New Task created: ${task}`);
       sendEventsToAll(task, 'add');
@@ -65,6 +69,11 @@ router.all('/', async (_req, res, next) => {
   }
   return res.sendStatus(200);
 });
+
+/* router.post('/t', schemaValidation(taskSchema.POST, 'body'), (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200);
+}); */
 
 router.get('/sse', (req, res) => {
   res.writeHead(200, {

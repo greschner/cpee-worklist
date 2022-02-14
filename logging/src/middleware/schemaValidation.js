@@ -5,7 +5,7 @@ import logger from '../logger';
 const middleware = (schema, property) => (req, _res, next) => {
   const { error, value } = schema.validate(req[property]);
   if (!error) {
-    req.body = value;
+    req[property] = value;
     next();
   } else {
     const { details } = error;

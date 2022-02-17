@@ -23,6 +23,7 @@ router.post('/receive', async (req, res, next) => {
   try {
     const task = await taskModel.create({
       label: req.headers['cpee-label'],
+      pid: req.body.pid,
       activity: req.headers['cpee-activity'],
       callback: req.headers['cpee-callback'],
       callbackId: req.headers['cpee-callback-id'],

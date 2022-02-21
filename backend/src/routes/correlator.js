@@ -13,6 +13,20 @@ const sendEventsToAll = (data, event) => {
   clients.forEach((client) => client.res.write(`${event ? `event: ${event}\n` : ''}data: ${JSON.stringify(data)}\n\n`));
 };
 
+const matchTask = (pid, body) => {
+  switch (pid) {
+    case '2':
+    case '4':
+    case '5':
+    case '7':
+      return producedModel.findOne({ pid, 'body.plateid': body.plateid });
+    case '3':
+      return producedModel.findOne({ pid, 'body.sampleid': body.sampleid });
+    default:
+      return producedModel.findOne({ pid });
+  }
+};
+
 router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, next) => {
   try {
     // const xml = await readFile('/Users/jangreschner/dockerProjects/labMaster/logging/test_sub.xml', { encoding: 'utf8' });
@@ -35,9 +49,9 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
       sendEventsToAll(task, 'add');
       res.setHeader('CPEE-CALLBACK', 'true');
     }
-
+    const tempArr = ['1', '2']; // debug only temporary
     // producer
-    if (req.headers['content-id'] === 'producer') {
+    if (req.headers['content-id'] === 'producer' && tempArr.includes(req.body.pid)) {
       const t = await producedModel.create(req.body);
       logger.info(`New produced Task created: ${t}`);
     }
@@ -49,12 +63,13 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
 
 // correlator
 router.all('/', async (_req, res, next) => {
-  console.log('run');
   try {
     const openTasks = await taskModel.find({});
-    openTasks.forEach(async ({ pid, callback, _id: id }) => {
-      const producedTask = await producedModel.findOne({ pid }); // match TODO
-      console.log(producedTask);
+    await Promise.all(openTasks.map(async ({
+      pid, callback, _id: id, body,
+    }) => {
+      const producedTask = await matchTask(pid, body); // match TODO
+      console.log(`MATCH: ${producedTask}`);
       if (producedTask) {
         await callbackInstance(callback); // callback to CPEE
         await Promise.all([
@@ -63,11 +78,11 @@ router.all('/', async (_req, res, next) => {
         ]);
         sendEventsToAll(id, 'remove');
       }
-    });
+    }));
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }
-  return res.sendStatus(200);
 });
 
 /* router.post('/t', schemaValidation(taskSchema.POST, 'body'), (req, res) => {

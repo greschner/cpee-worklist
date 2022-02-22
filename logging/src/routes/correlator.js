@@ -7,10 +7,10 @@ import { URLSearchParams } from 'url';
 import logger from '../logger';
 import { crudMid, idValMid, schemaValMid } from '../middleware';
 
-axios.interceptors.request.use((request) => {
+/* axios.interceptors.request.use((request) => {
   console.log('Request: ', JSON.stringify(request, null, 2));
   return request;
-});
+}); */
 
 const router = express.Router();
 

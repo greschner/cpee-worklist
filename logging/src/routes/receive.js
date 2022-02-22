@@ -3,7 +3,7 @@ import createError from 'http-errors';
 import axios from 'axios';
 import logger from '../logger';
 import receiveSchema from '../schemata/receiveSchema';
-import loggingModel from '../model/logging';
+import { loggingModel } from '../model';
 import { crudMid, idValMid, schemaValMid } from '../middleware';
 // import authenticateJWT from '../middleware/authJWT.js';
 
@@ -46,7 +46,7 @@ router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body
   const tempArr = ['1', '2']; // debug
   const { name, id: pid } = body;
   if (tempArr.includes(body.id)) {
-    logger.info(`Send produced task: ${body}`);
+    // logger.info(`Send produced task: ${body}`);
     axios.post('https://greschner.azurewebsites.net/backend/corr', {
       name,
       pid,

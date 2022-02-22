@@ -12,20 +12,30 @@
       sortable
     />
     <el-table-column
+      prop="pid"
+      label="ID"
+      sortable
+    />
+    <el-table-column
       prop="activity"
       label="Activity"
       sortable
     />
     <el-table-column
-      prop="body.process"
-      label="Process"
-      sortable
-    />
-    <el-table-column
-      prop="instance"
       label="Instance"
       sortable
-    />
+    >
+      <template #default="scope">
+        <el-link
+          :href="'https://cpee.org/flow/edit.html?monitor='+scope.row.instanceUrl"
+          :underline="false"
+          target="_blank"
+          type="primary"
+        >
+          {{ scope.row.instance }}
+        </el-link>
+      </template>
+    </el-table-column>
     <el-table-column
       prop="timestamp"
       :formatter="df"

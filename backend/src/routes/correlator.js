@@ -71,7 +71,7 @@ router.all('/', async (_req, res, next) => {
       const producedTask = await matchTask(pid, body); // match TODO
       console.log(`MATCH: ${producedTask}`);
       if (producedTask) {
-        await callbackInstance(callback); // callback to CPEE
+        await callbackInstance(callback, producedTask.body); // callback to CPEE
         await Promise.all([
           taskModel.findByIdAndDelete(id), // remove from task list
           producedModel.findByIdAndDelete(producedTask._id), // remove from produced list

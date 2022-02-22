@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 import logger from './logger';
 import { receiveRoute, correlatorRoute } from './routes';
 import db from './db';
-import { callbackInstance } from './utils/cpee';
 
 // set listening port
 const PORT = process.env.PORT || 4000;
@@ -62,5 +61,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
-
-// callbackInstance('https://cpee.org/flow/engine/5579/callbacks/6ff78748b605f5e15a0ab1e6a7a4d355/', { plateid: '1220' });

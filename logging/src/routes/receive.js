@@ -1,5 +1,6 @@
 import express from 'express';
 import createError from 'http-errors';
+import axios from 'axios';
 import logger from '../logger';
 import receiveSchema from '../schemata/receiveSchema';
 import loggingModel from '../model/logging';
@@ -42,6 +43,19 @@ if (process.env.NODE_ENV === 'production') {
 // store logging information
 router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body }) => {
   const result = await loggingModel.create(body); // store request body to db
+  const tempArr = ['1', '2']; // debug
+  const { name, id: pid } = body;
+  if (tempArr.includes(body.id)) {
+    axios.post('https://greschner.azurewebsites.net/backend/corr', {
+      name,
+      pid,
+      body: body.body,
+    }, {
+      headers: {
+        'content-id': 'producer',
+      },
+    });
+  }
   sendEventsToAll(result);
   return result;
 }));

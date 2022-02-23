@@ -1,6 +1,12 @@
 import axios from 'axios';
 import FormData from 'form-data';
 
+// debug log every request
+axios.interceptors.request.use((request) => {
+  console.log('Request: ', JSON.stringify(request, null, 2));
+  return request;
+});
+
 const callbackInstance = (instance, body) => {
   if (!instance) {
     return null;

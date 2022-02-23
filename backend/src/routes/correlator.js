@@ -69,7 +69,9 @@ router.all('/', async (_req, res, next) => {
       pid, callback, _id: id, body,
     }) => {
       const producedTask = await matchTask(pid, body); // match TODO
-      console.log(`MATCH: ${producedTask}`);
+      console.log(`MATCH: ${producedTask} WITH TASK ${{
+        pid, callback, id, body,
+      }}`);
       if (producedTask) {
         await callbackInstance(callback, producedTask.body); // callback to CPEE
         await Promise.all([

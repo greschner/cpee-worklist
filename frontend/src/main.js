@@ -15,5 +15,7 @@ library.add(faBarcode, faPlus, faCheck, faFileExport);
 const app = createApp(App);
 installElementPlus(app);
 
+store.dispatch('setBaseData');
+
 // app.use(store).use(router).provide('socket', socket).mount('#app');
 app.use(store).use(router).component('fa', FontAwesomeIcon).mount('#app');

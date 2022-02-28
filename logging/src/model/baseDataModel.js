@@ -7,7 +7,7 @@ const bdschema = new Schema({
   id: {
     type: String,
     required: true,
-    index: true,
+    unique: true,
   },
   label: {
     type: String,

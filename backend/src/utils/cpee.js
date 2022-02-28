@@ -7,11 +7,15 @@ axios.interceptors.request.use((request) => {
   return request;
 });
 
-const callbackInstance = (instance, body) => {
+const callbackInstance = (instance, body, update = false) => {
   if (!instance) {
     return null;
   }
-  return axios.put(instance, body);
+  return axios.put(instance, body, {
+    headers: {
+      ...update && { 'cpee-update': true },
+    },
+  });
 };
 
 const startInstance = (id) => {

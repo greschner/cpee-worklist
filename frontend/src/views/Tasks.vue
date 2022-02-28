@@ -5,16 +5,21 @@
     :height="tableHeight"
     :row-class-name="tableRowClassName"
     style="width: 100%"
+    @filter-change="onFilterChange"
   >
     <el-table-column
       prop="label"
       label="Task Name"
       sortable
+      column-key="name"
+      :filters="filters.nameFilter"
     />
     <el-table-column
       prop="pid"
       label="ID"
       sortable
+      column-key="id"
+      :filters="filters.idFilter"
     />
     <el-table-column
       prop="activity"
@@ -47,10 +52,12 @@
 
 <script>
 import { watchEffect } from 'vue';
+import { mapState } from 'vuex';
 import { errorMessage } from '../utils/notifications';
 import { CORRELATOR_URL } from '../env';
 import worklistApi from '../api/worklist';
 import df from '../utils/dateFormatter';
+import BaseDataApi from '../api/basedata';
 
 export default {
   name: 'Tasks',
@@ -58,7 +65,25 @@ export default {
     tableData: [],
     tableIDs: [],
     tableHeight: null,
+    filters: {
+      nameFilter: [],
+      idFilter: [],
+      cIdFilter: [],
+    },
   }),
+  computed: {
+    ...mapState(['baseData']),
+  },
+  watch: {
+    baseData: {
+      immediate: true,
+      handler(val) {
+        const { nameFilter, idFilter } = BaseDataApi.getBasedata(val);
+        this.filters.nameFilter = nameFilter;
+        this.filters.idFilter = idFilter;
+      },
+    },
+  },
   created() {
     // sse
     this.setupStream();
@@ -69,7 +94,7 @@ export default {
       this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
     });
     watchEffect(() => {
-      this.getTask();
+      this.getTask(this.filters.cIdFilter);
     });
   },
   beforeUnmount() {
@@ -93,13 +118,21 @@ export default {
         this.tableData = this.tableData.filter((item) => item._id !== id); // remove item from table
       });
     },
-    async getTask() {
+    async getTask(id) {
       try {
-        const { data } = await worklistApi.getTask();
+        const { data } = await worklistApi.getTask({ id });
         this.tableData = data;
-        this.tableIDs = data.map(({ _id: id }) => id);
+        this.tableIDs = data.map(({ _id }) => _id.id);
       } catch (error) {
         errorMessage(error);
+      }
+    },
+    onFilterChange(filters) {
+      if (filters.name) {
+        this.filters.cIdFilter = filters.name;
+      }
+      if (filters.id) {
+        this.filters.cIdFilter = filters.id;
       }
     },
     tableRowClassName({ row }) {

@@ -64,7 +64,7 @@ router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body
 // get all logging entries
 router.get('/', crudMid(async ({
   query: {
-    id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page, limit = 1000, start, end, groupby, format, distinct = false,
+    id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page = 1, limit = 1000, start, end, groupby, format, distinct = false,
   },
 }) => {
   const groupByQuery = (gb, f) => {

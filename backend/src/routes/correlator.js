@@ -58,6 +58,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
   } catch (error) {
     next(error);
   }
+  res.sendStatus(200);
   next();
 });
 
@@ -81,7 +82,6 @@ router.all('/', async (_req, res, next) => {
         sendEventsToAll(id, 'remove');
       }
     }));
-    res.sendStatus(200);
   } catch (error) {
     next(error);
   }

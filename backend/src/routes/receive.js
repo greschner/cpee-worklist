@@ -48,9 +48,12 @@ router.get('/96plates', async (req, res, next) => {
   }
 });
 
-router.get('/', async (_req, res, next) => {
+router.get('/', async ({ query: { id } }, res, next) => {
   try {
-    const tasks = await taskModel.find({}).sort({ timestamp: -1 }).exec() || [];
+    const q = { // query object
+      ...id && { pid: { $in: Array.isArray(id) ? id : [id] } }, // filter after pid
+    };
+    const tasks = await taskModel.find(q).sort({ timestamp: -1 }).exec() || [];
     res.json(tasks);
   } catch (error) {
     next(error);

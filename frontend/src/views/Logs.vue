@@ -83,7 +83,7 @@
         >
           {{ resultConverter(scope.row.body.result) }}
         </el-tag>
-        <el-tag v-else-if="['1','2','5','7'].includes(scope.row.id)">
+        <el-tag v-else-if="['1','2','5','7','12'].includes(scope.row.id)">
           {{ scope.row.body?.plateid }}
         </el-tag>
         <el-tag
@@ -211,7 +211,9 @@
 <script>
 import { watchEffect } from 'vue';
 import { Download } from '@element-plus/icons-vue';
+import { mapState } from 'vuex';
 import LogApi from '../api/logs';
+import BaseDataApi from '../api/basedata';
 import oFunc from '../utils/sort';
 import downloadCSVData from '../utils/downloadCsv';
 import downloadJsonData from '../utils/downloadJson';
@@ -227,6 +229,7 @@ export default {
   },
   data: () => ({
     tableData: [],
+    // baseData: [],
     shortcuts,
     tableHeight: null,
     loadingBtn: false,
@@ -267,6 +270,21 @@ export default {
       new Date(2000, 2, 1, 23, 59, 59),
     ],
   }),
+  computed: {
+    ...mapState(['baseData']),
+  },
+  watch: {
+    baseData: {
+      immediate: true,
+      handler(val) {
+        const { nameFilter, idFilter, ids } = BaseDataApi.getBasedata(val);
+        this.filters.nameFilter = nameFilter;
+        this.filters.idFilter = idFilter;
+        this.exportForm.taskOptions = ids;
+        this.exportForm.checkedTasks = ids;
+      },
+    },
+  },
   created() {
     this.setupStream(process.env.VUE_APP_SSE_LOGS, (event) => {
       if (this.pagination.currentpage === 1 && !this.sort.field
@@ -299,11 +317,6 @@ export default {
       );
     });
     this.filters.userFilter = await this.filterGroupBy('user');
-    this.filters.nameFilter = await this.filterGroupBy('name');
-    const ids = this.filters.nameFilter.map(({ value }) => value);
-    this.exportForm.taskOptions = ids;
-    this.exportForm.checkedTasks = ids;
-    this.filters.idFilter = await this.filterGroupBy('id');
   },
   methods: {
     oFunc,
@@ -315,6 +328,15 @@ export default {
     resultConverter,
     downloadCSVData,
     downloadJsonData,
+    getBasedata(data) {
+      this.filters.nameFilter = data.map(({ id, label }) => ({
+        text: label, value: id,
+      }));
+      this.filters.idFilter = data.map(({ id }) => ({ text: id, value: id }));
+      const ids = data.map(({ id }) => id);
+      this.exportForm.taskOptions = ids;
+      this.exportForm.checkedTasks = ids;
+    },
     async getLogs(limit, page, sort, order, user, id, search) {
       try {
         const { data: { data, count } } = await LogApi.getLogs({
@@ -333,9 +355,6 @@ export default {
     async filterGroupBy(groupby) {
       try {
         const { data: { data } } = await LogApi.getLogs({ groupby });
-        if (['id', 'name'].includes(groupby)) {
-          return data.map(({ _id }) => ({ text: _id[groupby], value: _id.id }));
-        }
         return data.map(({ _id }) => ({ text: _id, value: _id }));
       } catch (error) {
         return errorMessage(error);

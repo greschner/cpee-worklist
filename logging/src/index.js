@@ -64,5 +64,3 @@ const options = {
 https.createServer(options, app).listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
-
-initBaseData();

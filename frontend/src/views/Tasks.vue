@@ -59,6 +59,8 @@ import worklistApi from '../api/worklist';
 import df from '../utils/dateFormatter';
 import BaseDataApi from '../api/basedata';
 
+let es;
+
 export default {
   name: 'Tasks',
   data: () => ({
@@ -97,11 +99,12 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.resizeEventListener);
+    es.close();
   },
   methods: {
     df,
     setupStream() {
-      const es = new EventSource(`${CORRELATOR_URL}corr/sse`);
+      es = new EventSource(`${CORRELATOR_URL}corr/sse`);
 
       es.onerror = (err) => console.error('EventSource failed:', err);
 

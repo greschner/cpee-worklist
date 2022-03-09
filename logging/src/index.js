@@ -12,7 +12,6 @@ import logger from './logger';
 import {
   BiRoute, ReceiveRoute, CorrelatorRoute, BaseDataRoute,
 } from './routes';
-import { initBaseData } from './util/baseData';
 
 // read .env file, parse the contents, assign it to process.env
 dotenv.config();

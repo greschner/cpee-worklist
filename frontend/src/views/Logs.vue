@@ -220,8 +220,9 @@ import downloadJsonData from '../utils/downloadJson';
 import df from '../utils/dateFormatter';
 import { errorMessage, successMessage } from '../utils/notifications';
 import { resultFormatter, resultConverter } from '../utils/tableFormatter';
-import setupStream from '../api/sse';
 import shortcuts, { generateDateRange } from '../utils/dateShortcuts';
+
+let es;
 
 export default {
   components: {
@@ -286,18 +287,7 @@ export default {
     },
   },
   created() {
-    this.setupStream(process.env.VUE_APP_SSE_LOGS, (event) => {
-      if (this.pagination.currentpage === 1 && !this.sort.field
-      && !this.filters.cIdFilter.length && !this.filters.cNameFilter.length
-      && !this.filters.cUserFilter.length && !this.search) {
-        const data = JSON.parse(event.data);
-        this.tableData.unshift(data);
-        if (this.pagination.itemscount >= this.pagination.pagesize) {
-          this.tableData.pop();
-        }
-        this.pagination.itemscount += 1;
-      }
-    });
+    this.setupStream(); // sse
   },
   async mounted() {
     this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
@@ -318,17 +308,35 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.resizeEventListener);
+    es.close();
   },
   methods: {
     oFunc,
     df,
     errorMessage,
     successMessage,
-    setupStream,
     resultFormatter,
     resultConverter,
     downloadCSVData,
     downloadJsonData,
+    setupStream() {
+      es = new EventSource(process.env.VUE_APP_SSE_LOGS);
+
+      es.onmessage = (event) => {
+        if (this.pagination.currentpage === 1 && !this.sort.field
+      && !this.filters.cIdFilter.length && !this.filters.cNameFilter.length
+      && !this.filters.cUserFilter.length && !this.search) {
+          const data = JSON.parse(event.data);
+          this.tableData.unshift(data);
+          if (this.pagination.itemscount >= this.pagination.pagesize) {
+            this.tableData.pop();
+          }
+          this.pagination.itemscount += 1;
+        }
+      };
+
+      es.onerror = (err) => console.error('EventSource failed:', err);
+    },
     getBasedata(data) {
       this.filters.nameFilter = data.map(({ id, label }) => ({
         text: label, value: id,

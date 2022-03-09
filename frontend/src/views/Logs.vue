@@ -301,9 +301,7 @@ export default {
   },
   async mounted() {
     this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
-    window.addEventListener('resize', () => {
-      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
-    });
+    window.addEventListener('resize', this.resizeEventListener);
     watchEffect(() => {
       this.watchEffectTrigger = !this.watchEffectTrigger;
       this.getLogs(
@@ -317,6 +315,9 @@ export default {
       );
     });
     this.filters.userFilter = await this.filterGroupBy('user');
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.resizeEventListener);
   },
   methods: {
     oFunc,
@@ -351,6 +352,9 @@ export default {
     onSortChange({ prop, order }) {
       this.sort.field = prop;
       this.sort.order = order;
+    },
+    resizeEventListener() {
+      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
     },
     async filterGroupBy(groupby) {
       try {

@@ -90,15 +90,13 @@ export default {
   },
   mounted() {
     this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
-    window.addEventListener('resize', () => {
-      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
-    });
+    window.addEventListener('resize', this.resizeEventListener);
     watchEffect(() => {
       this.getTask(this.filters.cIdFilter);
     });
   },
   beforeUnmount() {
-
+    window.removeEventListener('resize', this.resizeEventListener);
   },
   methods: {
     df,
@@ -143,6 +141,9 @@ export default {
         return 'warning-row';
       }
       return '';
+    },
+    resizeEventListener() {
+      this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 50;
     },
   },
 };

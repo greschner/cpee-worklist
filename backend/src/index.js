@@ -61,3 +61,15 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
+
+const t = (update = false) => {
+  const k = {
+    headers: {
+      ...update && { 'cpee-update': true },
+    },
+  };
+  console.log(k);
+};
+
+t();
+t(true);

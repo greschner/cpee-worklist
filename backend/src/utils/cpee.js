@@ -13,7 +13,7 @@ const callbackInstance = (instance, body, update = false) => {
   }
   return axios.put(instance, body, {
     headers: {
-      // ...update && { 'cpee-update': true },
+      ...update && { 'cpee-update': true },
     },
   });
 };

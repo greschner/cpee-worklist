@@ -57,7 +57,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
   } catch (error) {
     next(error);
   }
-  res.sendStatus(200);
+  res.status(200).send();
   // next();
 });
 

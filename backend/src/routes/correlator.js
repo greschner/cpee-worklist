@@ -44,15 +44,15 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
         instanceUuid: req.headers['cpee-instance-uuid'],
         instanceUrl: req.headers['cpee-instance-url'],
         body,
-      });
+      }); // save new task to db
       logger.info(`New Task created: ${task}`);
-      sendEventsToAll(task, 'add');
+      sendEventsToAll(task, 'add'); // sse
       res.setHeader('CPEE-CALLBACK', 'true');
     }
-    const tempArr = ['1', '2']; // debug only temporary
+    const tempArr = ['1', '2']; // debug (only temporary)
     // producer
     if (req.headers['content-id'] === 'producer' && tempArr.includes(req.body.pid)) {
-      const t = await producedModel.create(req.body);
+      const t = await producedModel.create(req.body); // save new produced entry to db
       logger.info(`New produced Task created: ${t}`);
     }
   } catch (error) {
@@ -65,21 +65,24 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
 // correlator
 router.all('/', async (_req, res, next) => {
   try {
-    const openTasks = await taskModel.find({});
+    const openTasks = await taskModel.find({}); // get all open tasks
     await Promise.all(openTasks.map(async ({
       pid, callback, _id: id, body,
     }) => {
-      const producedTask = await matchTask(pid, body); // match TODO
+      const producedTask = await matchTask(pid, body); // match
       console.log(`MATCH: ${producedTask} WITH TASK ${{
         pid, callback, id, body,
       }}`);
       if (producedTask) {
-        await callbackInstance(callback, producedTask.body); // callback to CPEE
+        const cArr = ['1', '2'].includes(id);
+
         await Promise.all([
-          taskModel.findByIdAndDelete(id), // remove from task list
+          callbackInstance(callback, producedTask.body, cArr), // callback to CPEE
+          ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
           producedModel.findByIdAndDelete(producedTask._id), // remove from produced list
         ]);
-        sendEventsToAll(id, 'remove');
+
+        sendEventsToAll(id, 'remove'); // sse
       }
     }));
   } catch (error) {

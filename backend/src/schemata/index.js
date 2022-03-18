@@ -1,2 +1,2 @@
-// eslint-disable-next-line import/prefer-default-export
 export { default as taskSchema } from './taskSchema';
+export { default as serviceSchema } from './serviceSchema';

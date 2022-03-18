@@ -4,7 +4,7 @@ import createError from 'http-errors';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import logger from './logger';
-import { receiveRoute, correlatorRoute } from './routes';
+import { receiveRoute, correlatorRoute, servicesRoute } from './routes';
 import db from './db';
 
 // set listening port
@@ -26,6 +26,7 @@ app.use(cors());
 // routes
 app.use('/', receiveRoute);
 app.use('/corr', correlatorRoute);
+app.use('/services', servicesRoute);
 
 // catch 404 and forward to error handler
 app.use((_req, _res, next) => {
@@ -49,9 +50,9 @@ app.use((err, req, res, next) => {
       break;
     default:
       error = createError.InternalServerError();
+      console.error(err);
       break;
   }
-  console.error(err);
   res.status(error.status || 500).json({ error: error.message });
 });
 

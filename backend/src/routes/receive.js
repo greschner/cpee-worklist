@@ -69,8 +69,12 @@ router.put('/tasks/:id', valID, async (req, res, next) => {
     logger.info('Send PUT request');
     logger.info(`Callback-URL: ${req.result.callback}`);
     logger.info(`Body: ${req.body}`);
-    await axios.put(req.result.callback, req.body);
-    await taskModel.findByIdAndDelete(req.result._id);
+    await Promise.all(
+      [
+        axios.put(req.result.callback, req.body),
+        taskModel.findByIdAndDelete(req.result._id),
+      ],
+    );
     res.sendStatus(200);
   } catch (error) {
     next(error);

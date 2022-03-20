@@ -5,14 +5,16 @@ import { schemaValidation } from '../middleware';
 
 const router = express.Router();
 
-router.post('/pcheck', schemaValidation(serviceSchema.POST_PCHECK, 'body'), (req, res) => {
-  const { createdids, finishids } = req.body;
+router.post('/pcheck', /* schemaValidation(serviceSchema.POST_PCHECK, 'body') , */ (req, res) => {
+  console.log(req.body);
+  /* const { createdids, finishids } = req.body;
   // difference between createdids and finishids
   const unfinishedPlates = createdids.filter(
     ({ plateid: pid1 }) => !finishids.some(({ plateid: pid2 }) => pid1 === pid2),
   );
   logger.info(unfinishedPlates);
-  res.json(unfinishedPlates);
+  res.json(unfinishedPlates); */
+  res.status(200).send();
 });
 
 export default router;

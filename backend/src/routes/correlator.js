@@ -76,7 +76,10 @@ router.all('/', async () => {
         const cArr = ['1', '2'].includes(pid);
 
         await Promise.all([
-          callbackInstance(callback, producedTask.body, cArr), // callback to CPEE
+          callbackInstance(callback, {
+            ...producedTask.body,
+            timestamp: producedTask.timestamp,
+          }, cArr), // callback to CPEE
           ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
           producedModel.findByIdAndDelete(producedTask._id), // remove from produced list
         ]);

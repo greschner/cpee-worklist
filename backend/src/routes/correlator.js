@@ -15,11 +15,14 @@ const sendEventsToAll = (data, event) => {
 
 const matchTask = (pid, body) => {
   switch (pid) {
+    case '3':
     case '4':
     case '5':
     case '7':
       return producedModel.findOne({ pid, 'body.plateid': body.plateid });
-    case '3':
+    case '6':
+    case '8':
+    case '9':
       return producedModel.findOne({ pid, 'body.sampleid': body.sampleid });
     default:
       return producedModel.findOne({ pid });
@@ -48,9 +51,8 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
       sendEventsToAll(task, 'add'); // sse
       res.setHeader('CPEE-CALLBACK', 'true');
     }
-    const tempArr = ['1', '2']; // debug (only temporary)
     // producer
-    if (req.headers['content-id'] === 'producer' && tempArr.includes(req.body.pid)) {
+    if (req.headers['content-id'] === 'producer') {
       const t = await producedModel.create(req.body); // save new produced entry to db
       logger.info(`New produced Task created: ${t}`);
     }
@@ -82,6 +84,7 @@ router.all('/', async () => {
           }, cArr), // callback to CPEE
           ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
           producedModel.findByIdAndDelete(producedTask._id), // remove from produced list
+          ...pid === '2' ? [taskModel.findOneAndDelete({ pid: '3', 'body.plateid': producedTask.body.plateid })] : [], // remove Wait for sample from task list
         ]);
 
         sendEventsToAll(id, 'remove'); // sse

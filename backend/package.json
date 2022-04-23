@@ -21,16 +21,16 @@
     "http-errors": "^2.0.0",
     "joi": "^17.6.0",
     "mongodb-uri": "^0.9.7",
-    "mongoose": "^6.2.7",
-    "pino": "^7.9.1",
-    "pino-pretty": "^7.5.4",
+    "mongoose": "^6.3.1",
+    "pino": "^7.10.0",
+    "pino-pretty": "^7.6.1",
     "socket.io": "^4.4.1",
-    "winston": "^3.6.0"
+    "winston": "^3.7.2"
   },
   "devDependencies": {
-    "eslint": "^8.11.0",
+    "eslint": "^8.14.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-import": "^2.26.0",
     "nodemon": "^2.0.15"
   }
 }

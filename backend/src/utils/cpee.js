@@ -18,20 +18,26 @@ const callbackInstance = (instance, body, update = false) => {
   });
 };
 
-const startInstance = (id) => {
+const changeState = (id, value = 'running') => {
   if (!id) {
     return null;
   }
   return axios.put(
     `https://cpee.org/flow/engine/${id}/properties/state/`,
     new URLSearchParams({
-      value: 'running',
+      value,
     }),
     {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     },
   );
 };
+
+const startInstance = (id) => changeState(id);
+
+const stopInstance = (id) => changeState(id, 'stopped');
+
+const abandonInstance = (id) => changeState(id, 'abandoned');
 
 const newInstanceXML = (xml, behavior = 'wait_running') => {
   if (!xml) {
@@ -68,5 +74,5 @@ const newInstanceURL = (url, behavior = 'wait_running') => {
 };
 
 export {
-  startInstance, newInstanceXML, newInstanceURL, callbackInstance,
+  startInstance, stopInstance, abandonInstance, newInstanceXML, newInstanceURL, callbackInstance,
 };

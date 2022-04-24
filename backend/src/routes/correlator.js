@@ -24,6 +24,13 @@ const matchTask = (pid, body) => {
     case '8':
     case '9':
       return producedModel.findOne({ pid, 'body.sampleid': body.sampleid });
+    case '13':
+      return producedModel.findOne({
+        pid,
+        'body.sampleid': body.sampleid,
+        'body.plateid': body.plateid,
+        'body.position': body.position,
+      });
     default:
       return producedModel.findOne({ pid });
   }

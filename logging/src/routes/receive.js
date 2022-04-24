@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === 'production') {
 // store logging information
 router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body }) => {
   const result = await loggingModel.create(body); // store request body to db
-  const tempArr = ['1', '2', '3', '5', '6', '7', '8', '9']; // debug
+  const tempArr = ['1', '2', '3', '5', '6', '7', '8', '9', '13']; // debug
   const { name, id: pid } = body;
   if (tempArr.includes(body.id)) {
     // logger.info(`Send produced task: ${body}`);

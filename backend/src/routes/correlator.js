@@ -39,9 +39,9 @@ const matchTask = (pid, body) => {
 router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, next) => {
   try {
     // const xml = await readFile('/Users/jangreschner/dockerProjects/labMaster/logging/test_sub.xml', { encoding: 'utf8' });
-
+    const { stop } = req.body;
     // cpee callback request
-    if (req.headers['cpee-callback']) {
+    if (req.headers['cpee-callback'] && !stop) {
       const { pid, ...body } = req.body;
       const task = await taskModel.create({
         label: req.headers['cpee-label'],
@@ -58,10 +58,17 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
       sendEventsToAll(task, 'add'); // sse
       res.setHeader('CPEE-CALLBACK', 'true');
     }
+
     // producer
     if (req.headers['content-id'] === 'producer') {
       const t = await producedModel.create(req.body); // save new produced entry to db
       logger.info(`New produced Task created: ${t}`);
+    }
+    // delete task
+    if (stop) {
+      const task = await taskModel.findOneAndDelete({ pid: req.body.pid, instance: req.headers['cpee-instance'] });
+      logger.info(`Deleted Task: ${task}`);
+      await callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' });
     }
   } catch (error) {
     next(error);
@@ -88,10 +95,9 @@ router.all('/', async () => {
           callbackInstance(callback, {
             ...producedTask.body,
             timestamp: producedTask.timestamp,
-          }, cArr), // callback to CPEE
+          }, cArr && { 'cpee-update': true }), // callback to CPEE
           ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
           producedModel.findByIdAndDelete(producedTask._id), // remove from produced list
-          ...pid === '2' ? [taskModel.findOneAndDelete({ pid: '3', 'body.plateid': producedTask.body.plateid })] : [], // remove Wait for sample from task list
         ]);
 
         sendEventsToAll(id, 'remove'); // sse

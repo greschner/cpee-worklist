@@ -7,15 +7,11 @@ axios.interceptors.request.use((request) => {
   return request;
 });
 
-const callbackInstance = (instance, body, update = false) => {
+const callbackInstance = (instance, body, headers = {}) => {
   if (!instance) {
     return null;
   }
-  return axios.put(instance, body, {
-    headers: {
-      ...update && { 'cpee-update': true },
-    },
-  });
+  return axios.put(instance, body, { headers });
 };
 
 const changeState = (id, value = 'running') => {

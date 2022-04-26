@@ -67,8 +67,10 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
     // delete task
     if (stop) {
       const task = await taskModel.findOneAndDelete({ pid: req.body.pid, instance: req.headers['cpee-instance'] });
-      logger.info(`Deleted Task: ${task}`);
-      await callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' });
+      if (task) {
+        logger.info(`Deleted Task: ${task}`);
+        await callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' });
+      }
     }
   } catch (error) {
     next(error);

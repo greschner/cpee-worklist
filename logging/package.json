@@ -28,7 +28,7 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb-uri": "^0.9.7",
-    "mongoose": "^6.3.2",
+    "mongoose": "^6.3.3",
     "winston": "^3.7.2"
   }
 }

@@ -31,6 +31,9 @@ const sampleschema = new Schema({
     },
     position: String,
     result: String,
+    retry: String,
+    ct: Number,
+    valid: Boolean,
     complete: Boolean,
   },
   timestamp: {

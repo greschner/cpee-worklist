@@ -99,7 +99,9 @@ router.all('/', async () => {
             timestamp: producedTask.timestamp,
           }, cArr && { 'cpee-update': true }), // callback to CPEE
           ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
-          producedModel.findByIdAndDelete(producedTask._id), // remove from produced list
+          ...pid !== '6' ? [
+            producedModel.findByIdAndDelete(producedTask._id),
+          ] : [], // remove from produced list
         ]);
 
         sendEventsToAll(id, 'remove'); // sse

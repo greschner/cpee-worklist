@@ -25,6 +25,10 @@ const taskschema = new Schema({
     type: Date,
     required: false,
     default: Date.now,
+    index: {
+      expires: '7d',
+      partialFilterExpression: { pid: { $eq: '6' } },
+    },
   },
   body: {
     sampleid: {

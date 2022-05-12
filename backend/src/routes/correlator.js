@@ -84,13 +84,15 @@ router.all('/', async () => {
   try {
     const openTasks = await taskModel.find({}); // get all open tasks
     await Promise.all(openTasks.map(async ({
-      pid, callback, _id: id, body,
+      pid, callback, _id: id, body, label, instance,
     }) => {
       const producedTask = await matchTask(pid, body); // match
-      console.log(`MATCH: ${producedTask} WITH TASK ${{
-        pid, callback, id, body,
-      }}`);
+
       if (producedTask) {
+        logger.info(`MATCH Task: ${{
+          id, label, pid, instance, body,
+        }} with ${producedTask}`);
+
         const cArr = ['1', '2'].includes(pid);
 
         await Promise.all([

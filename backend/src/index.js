@@ -60,21 +60,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
-
-const a = {
-  sampleid: '34011122',
-};
-
-const b = {
-  sampleid: 'CF011122',
-};
-
-const c = {
-  body: {
-    a: '1',
-  },
-};
-
-const d = !/^[CF|BG]/.test(c.body.sampleid);
-
-console.log(d);

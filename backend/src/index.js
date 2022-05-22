@@ -2,7 +2,7 @@
 import db from './db';
 import app from './app';
 import logger from './logger';
-import { correlator } from './utils/cpee';
+import { abandonInstances } from './utils/cpee';
 
 // connect to database
 db.connect();
@@ -14,8 +14,5 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
-
-// run correlator every 10 seconds
-setInterval(correlator, 10000);
 
 // abandonInstances(3536, 3546);

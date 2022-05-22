@@ -76,11 +76,11 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
     next(error);
   }
   res.status(200).send();
-  // next();
+  next();
 });
 
 // correlator
-/* router.all('/', async () => {
+router.all('/', async () => {
   try {
     const openTasks = await taskModel.find({}); // get all open tasks
     await Promise.all(openTasks.map(async ({
@@ -112,7 +112,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
   } catch (error) {
     console.error(error);
   }
-}); */
+});
 
 /* router.post('/t', schemaValidation(taskSchema.POST, 'body'), (req, res) => {
   console.log(req.body);

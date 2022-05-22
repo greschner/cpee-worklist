@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-// import { jest } from '@jest/globals';
+import { jest } from '@jest/globals';
 import axios from 'axios';
 import * as testData from './testData';
 
@@ -13,6 +13,8 @@ const numberOfSamples = 10;
 const numberOfSampleDeletes = 2;
 const samples = [];
 
+jest.setTimeout(100000);
+
 // init db
 /* beforeAll(async () => {
   await db.connect();
@@ -24,19 +26,20 @@ test('New Wellplate', async () => {
 });
 
 test('New Sample', async () => {
-  const promises = [];
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < numberOfSamples; i++) {
     const sample = testData.newSample();
     samples.push(sample);
-    promises.push(axios.post(correlatorRef, sample, { headers }));
+    // eslint-disable-next-line no-await-in-loop
+    const response = await axios.post(correlatorRef, sample, { headers });
+    expect(response.status).toBe(200);
     // eslint-disable-next-line no-await-in-loop
     await sleep(1000);
   }
-  const responses = await Promise.all(promises);
+  /* const responses = await Promise.all(promises);
   responses.forEach((response) => {
     expect(response.status).toBe(200);
-  });
+  }); */
 });
 
 /* test('Delete Sample', async () => {
@@ -58,58 +61,49 @@ test('New Sample', async () => {
 test('Finish Wellplate', async () => {
   const response = await axios.post(correlatorRef, testData.finishWellplate(), { headers });
   expect(response.status).toBe(200);
+  await sleep(1000);
 });
 
 test('Import EPS', async () => {
   const response = await axios.post(correlatorRef, testData.importEPS(), { headers });
   expect(response.status).toBe(200);
+  await sleep(1000);
 });
 
 test('Validate Wellplate', async () => {
   const response = await axios.post(correlatorRef, testData.validateWellplate(), { headers });
   expect(response.status).toBe(200);
+  await sleep(1000);
 });
 
-test('Match Patient Data', async () => {
-  const promises = [];
-  samples.forEach(({ body: { sampleid } }) => {
-    promises.push(axios.post(correlatorRef, testData.matchPatient(sampleid), { headers }));
-  });
-  const responses = await Promise.all(promises);
-  responses.forEach((response) => {
+test('Match Patient Data', () => {
+  samples.forEach(async ({ body: { sampleid } }) => {
+    const response = await axios.post(correlatorRef, testData.matchPatient(sampleid), { headers });
     expect(response.status).toBe(200);
   });
 });
 
-test('Sample State', async () => {
-  const promises = [];
-  samples.forEach(({ body: { sampleid, position } }) => {
-    promises.push(axios.post(correlatorRef, testData.sampleState(sampleid, position), { headers }));
-  });
-  const responses = await Promise.all(promises);
-  responses.forEach((response) => {
+test('Sample State', () => {
+  samples.forEach(async ({ body: { sampleid, position } }) => {
+    const response = await axios.post(
+      correlatorRef,
+      testData.sampleState(sampleid, position),
+      { headers },
+    );
     expect(response.status).toBe(200);
   });
 });
 
-test('Export EMS', async () => {
-  const promises = [];
-  samples.forEach(({ body: { sampleid } }) => {
-    promises.push(axios.post(correlatorRef, testData.exportEMS(sampleid), { headers }));
-  });
-  const responses = await Promise.all(promises);
-  responses.forEach((response) => {
+test('Export EMS', () => {
+  samples.forEach(async ({ body: { sampleid } }) => {
+    const response = await axios.post(correlatorRef, testData.exportEMS(sampleid), { headers });
     expect(response.status).toBe(200);
   });
 });
 
-test('Export Result', async () => {
-  const promises = [];
-  samples.forEach(({ body: { sampleid } }) => {
-    promises.push(axios.post(correlatorRef, testData.exportResult(sampleid), { headers }));
-  });
-  const responses = await Promise.all(promises);
-  responses.forEach((response) => {
+test('Export Result', () => {
+  samples.forEach(async ({ body: { sampleid } }) => {
+    const response = await axios.post(correlatorRef, testData.exportResult(sampleid), { headers });
     expect(response.status).toBe(200);
   });
 });

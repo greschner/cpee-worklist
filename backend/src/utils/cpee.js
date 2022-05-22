@@ -1,5 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data';
+import { taskModel, producedModel } from '../model';
+import logger from '../logger';
 
 // debug log every request
 /* axios.interceptors.request.use((request) => {
@@ -88,7 +90,65 @@ const newInstanceURL = (url, behavior = 'wait_running') => {
   );
 };
 
+const matchTask = (pid, body) => {
+  switch (pid) {
+    case '3':
+    case '4':
+    case '5':
+    case '7':
+      return producedModel.findOne({ pid, 'body.plateid': body.plateid });
+    case '6':
+    case '8':
+    case '9':
+      return producedModel.findOne({ pid, 'body.sampleid': body.sampleid });
+    case '13':
+      return producedModel.findOne({
+        pid,
+        'body.sampleid': body.sampleid,
+        'body.plateid': body.plateid,
+        'body.position': body.position,
+      });
+    default:
+      return producedModel.findOne({ pid });
+  }
+};
+
+const correlator = async () => {
+  console.log('run');
+  try {
+    const openTasks = await taskModel.find({}); // get all open tasks
+    await Promise.all(openTasks.map(async ({
+      pid, callback, _id: id, body, label, instance,
+    }) => {
+      const producedTask = await matchTask(pid, body); // match
+
+      if (producedTask) {
+        logger.info(`MATCH Task: ${{
+          id, label, pid, instance, body,
+        }} with ${producedTask}`);
+
+        const cArr = ['1', '2'].includes(pid);
+
+        await Promise.all([
+          callbackInstance(callback, {
+            ...producedTask.body,
+            timestamp: producedTask.timestamp,
+          }, cArr && { 'cpee-update': true }), // callback to CPEE
+          ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
+          ...pid !== '6' ? [
+            producedModel.findByIdAndDelete(producedTask._id),
+          ] : [], // remove from produced list
+        ]);
+
+        // sendEventsToAll(id, 'remove'); // sse
+      }
+    }));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export {
   startInstance, stopInstance, abandonInstance, newInstanceXML, newInstanceURL, callbackInstance,
-  abandonInstances, changeState,
+  abandonInstances, changeState, correlator,
 };

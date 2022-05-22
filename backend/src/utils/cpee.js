@@ -31,9 +31,28 @@ const changeState = (id, value = 'running') => {
 
 const startInstance = (id) => changeState(id);
 
-const stopInstance = (id) => changeState(id, 'stopped');
+const stopInstance = (id) => changeState(id, 'stopping');
 
 const abandonInstance = (id) => changeState(id, 'abandoned');
+
+const abandonInstances = (from, to) => {
+  // const arr = [];
+
+  // eslint-disable-next-line no-plusplus
+  for (let i = from; i <= to; i++) {
+    axios.get(`https://cpee.org/flow/engine/${i}/properties/state/`)
+      .then(({ data }) => {
+        if (data === 'running') {
+          stopInstance(i)
+            .then(() => { abandonInstance(i).catch((e) => e); })
+            .catch((e) => e);
+        } else if (data === 'stopped') {
+          abandonInstance(i).catch((e) => e);
+        }
+      })
+      .catch((e) => e);
+  }
+};
 
 const newInstanceXML = (xml, behavior = 'wait_running') => {
   if (!xml) {
@@ -71,4 +90,5 @@ const newInstanceURL = (url, behavior = 'wait_running') => {
 
 export {
   startInstance, stopInstance, abandonInstance, newInstanceXML, newInstanceURL, callbackInstance,
+  abandonInstances, changeState,
 };

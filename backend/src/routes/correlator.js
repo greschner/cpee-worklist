@@ -64,13 +64,21 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
       const t = await producedModel.create(req.body); // save new produced entry to db
       logger.info(`New produced Task created: ${t}`);
     }
+
     // delete task
     if (stop) {
-      const task = await taskModel.findOneAndDelete({ pid: req.body.pid, instance: req.headers['cpee-instance'] });
+      const { pid, ...body } = req.body;
+      const t = await producedModel.create({
+        name: 'DELETE',
+        pid,
+        body,
+      });
+      logger.info(`New produced delete Task created: ${t}`);
+      /* const task = await taskModel.findOneAndDelete({ pid: req.body.pid, instance: req.headers['cpee-instance'] });
       if (task) {
-        logger.info(`Deleted Task: ${task}`);
+        logger.info(`New produced delete Task created: ${task}`);
         await callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' });
-      }
+      } */
     }
   } catch (error) {
     next(error);
@@ -96,10 +104,12 @@ router.all('/', async () => {
         const cArr = ['1', '2'].includes(pid);
 
         await Promise.all([
-          callbackInstance(callback, {
+          ...!producedTask.body?.stop ? [callbackInstance(callback, {
             ...producedTask.body,
             timestamp: producedTask.timestamp,
-          }, cArr && { 'cpee-update': true }), // callback to CPEE
+          }, cArr && { 'cpee-update': true })] : [
+            callbackInstance(callback, 'nil', { 'Content-Type': 'text/plain' }),
+          ], // callback to CPEE
           ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
           ...pid !== '6' ? [
             producedModel.findByIdAndDelete(producedTask._id),

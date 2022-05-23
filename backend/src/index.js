@@ -15,4 +15,4 @@ app.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
 
-// abandonInstances(3536, 3546);
+// abandonInstances(3608, 3618);

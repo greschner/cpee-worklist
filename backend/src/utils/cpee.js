@@ -1,5 +1,5 @@
-import axios from 'axios';
 import FormData from 'form-data';
+import axios from './getAxios';
 import { taskModel, producedModel } from '../model';
 import logger from '../logger';
 

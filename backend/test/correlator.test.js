@@ -23,6 +23,7 @@ jest.setTimeout(100000);
 test('New Wellplate', async () => {
   const response = await axios.post(correlatorRef, testData.newWellplate(), { headers });
   expect(response.status).toBe(200);
+  await sleep(1000);
 });
 
 test('New Sample', async () => {
@@ -80,6 +81,7 @@ test('Match Patient Data', () => {
   samples.forEach(async ({ body: { sampleid } }) => {
     const response = await axios.post(correlatorRef, testData.matchPatient(sampleid), { headers });
     expect(response.status).toBe(200);
+    await sleep(1000);
   });
 });
 
@@ -91,6 +93,7 @@ test('Sample State', () => {
       { headers },
     );
     expect(response.status).toBe(200);
+    await sleep(2000);
   });
 });
 
@@ -98,6 +101,7 @@ test('Export EMS', () => {
   samples.forEach(async ({ body: { sampleid } }) => {
     const response = await axios.post(correlatorRef, testData.exportEMS(sampleid), { headers });
     expect(response.status).toBe(200);
+    await sleep(2000);
   });
 });
 
@@ -105,6 +109,7 @@ test('Export Result', () => {
   samples.forEach(async ({ body: { sampleid } }) => {
     const response = await axios.post(correlatorRef, testData.exportResult(sampleid), { headers });
     expect(response.status).toBe(200);
+    await sleep(2000);
   });
 });
 

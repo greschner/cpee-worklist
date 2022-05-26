@@ -36,14 +36,14 @@ const matchTask = (pid, body) => {
   }
 };
 
-router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, next) => {
+router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => {
   try {
     // const xml = await readFile('/Users/jangreschner/dockerProjects/labMaster/logging/test_sub.xml', { encoding: 'utf8' });
     const { stop } = req.body;
     // cpee callback request
     if (req.headers['cpee-callback'] && !stop) {
       const { pid, ...body } = req.body;
-      const task = await taskModel.create({
+      taskModel.create({
         label: req.headers['cpee-label'],
         pid,
         activity: req.headers['cpee-activity'],
@@ -53,25 +53,28 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
         instanceUuid: req.headers['cpee-instance-uuid'],
         instanceUrl: req.headers['cpee-instance-url'],
         body,
+      }).then((task) => {
+        logger.info(`New Task created: ${task}`);
+        sendEventsToAll(task, 'add'); // sse
       }); // save new task to db
-      logger.info(`New Task created: ${task}`);
-      sendEventsToAll(task, 'add'); // sse
       res.setHeader('CPEE-CALLBACK', 'true');
     }
 
     // producer
     if (req.headers['content-id'] === 'producer') {
-      const t = await producedModel.create(req.body); // save new produced entry to db
-      logger.info(`New produced Task created: ${t}`);
+      producedModel.create(req.body).then((t) => {
+        logger.info(`New produced Task created: ${t}`);
+      }); // save new produced entry to db
     }
 
     // delete task
     if (stop) {
-      const task = await taskModel.findOneAndDelete({ pid: req.body.pid, instance: req.headers['cpee-instance'] });
-      if (task) {
-        logger.info(`New produced delete Task created: ${task}`);
-        await callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' });
-      }
+      taskModel.findOneAndDelete({ pid: req.body.pid, instance: req.headers['cpee-instance'] }).then((task) => {
+        if (task) {
+          logger.info(`New produced delete Task created: ${task}`);
+          callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' });
+        }
+      });
     }
   } catch (error) {
     next(error);
@@ -81,35 +84,36 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), async (req, res, nex
 });
 
 // correlator
-router.all('/', async () => {
+router.all('/', () => {
   try {
-    const openTasks = await taskModel.find({}); // get all open tasks
-    await Promise.all(openTasks.map(async ({
-      pid, callback, _id: id, body, label, instance,
-    }) => {
-      const producedTask = await matchTask(pid, body); // match
+    taskModel.find({}).then((openTasks) => {
+      Promise.all(openTasks.map(async ({
+        pid, callback, _id: id, body, label, instance,
+      }) => {
+        matchTask(pid, body).then((producedTask) => {
+          if (producedTask) {
+            logger.info(`MATCH Task: ${{
+              id, label, pid, instance, body,
+            }} with ${producedTask}`);
 
-      if (producedTask) {
-        logger.info(`MATCH Task: ${{
-          id, label, pid, instance, body,
-        }} with ${producedTask}`);
+            const cArr = ['1', '2'].includes(pid);
 
-        const cArr = ['1', '2'].includes(pid);
+            Promise.all([
+              callbackInstance(callback, {
+                ...producedTask.body,
+                timestamp: producedTask.timestamp,
+              }, cArr && { 'cpee-update': true }), // callback to CPEE
+              ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
+              ...pid !== '6' ? [
+                producedModel.findByIdAndDelete(producedTask._id),
+              ] : [], // remove from produced list
+            ]);
 
-        await Promise.all([
-          callbackInstance(callback, {
-            ...producedTask.body,
-            timestamp: producedTask.timestamp,
-          }, cArr && { 'cpee-update': true }), // callback to CPEE
-          ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
-          ...pid !== '6' ? [
-            producedModel.findByIdAndDelete(producedTask._id),
-          ] : [], // remove from produced list
-        ]);
-
-        sendEventsToAll(id, 'remove'); // sse
-      }
-    }));
+            sendEventsToAll(id, 'remove'); // sse
+          }
+        }); // match
+      }));
+    }); // get all open tasks
   } catch (error) {
     console.error(error);
   }

@@ -45,7 +45,7 @@ router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body
   const result = await loggingModel.create(body); // store request body to db
   const tempArr = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '13']; // debug
   const { name, id: pid } = body;
-  if (tempArr.includes(body.id) && !/^(CF|BG|7)/.test(body.body.sampleid)) {
+  if (tempArr.includes(body.id) && !/^(CF|7)/.test(body.body.sampleid)) {
     logger.info(`Send produced task: ${JSON.stringify(body)}`);
     axios.post('https://greschner.azurewebsites.net/backend/corr', {
       name,

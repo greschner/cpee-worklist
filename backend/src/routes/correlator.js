@@ -38,38 +38,34 @@ const matchTask = (pid, body) => {
 
 // correlator
 const correlator = () => {
-  try {
-    taskModel.find({}).then((openTasks) => {
-      Promise.all(openTasks.map(async ({
-        pid, callback, _id: id, body, label, instance,
-      }) => {
-        matchTask(pid, body).then((producedTask) => {
-          if (producedTask) {
-            logger.info(`MATCH Task: ${{
-              id, label, pid, instance, body,
-            }} with ${producedTask}`);
+  taskModel.find({}).then((openTasks) => {
+    Promise.all(openTasks.map(async ({
+      pid, callback, _id: id, body, label, instance,
+    }) => {
+      matchTask(pid, body).then((producedTask) => {
+        if (producedTask) {
+          logger.info(`MATCH Task: ${{
+            id, label, pid, instance, body,
+          }} with ${producedTask}`);
 
-            const cArr = ['1', '2'].includes(pid);
+          const cArr = ['1', '2'].includes(pid);
 
-            Promise.all([
-              callbackInstance(callback, {
-                ...producedTask.body,
-                timestamp: producedTask.timestamp,
-              }, cArr && { 'cpee-update': true }), // callback to CPEE
-              ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
-              ...pid !== '6' ? [
-                producedModel.findByIdAndDelete(producedTask._id),
-              ] : [], // remove from produced list
-            ]);
+          Promise.all([
+            callbackInstance(callback, {
+              ...producedTask.body,
+              timestamp: producedTask.timestamp,
+            }, cArr && { 'cpee-update': true }), // callback to CPEE
+            ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
+            ...pid !== '6' ? [
+              producedModel.findByIdAndDelete(producedTask._id),
+            ] : [], // remove from produced list
+          ]).catch((error) => { console.error(error); });
 
-            sendEventsToAll(id, 'remove'); // sse
-          }
-        }); // match
-      }));
-    }); // get all open tasks
-  } catch (error) {
-    console.error(error);
-  }
+          sendEventsToAll(id, 'remove'); // sse
+        }
+      }).catch((error) => { console.error(error); }); // match
+    })).catch((error) => { console.error(error); });
+  }).catch((error) => { console.error(error); }); // get all open tasks
 };
 
 router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => {
@@ -96,7 +92,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
         logger.info(`New Task created: ${task}`);
         sendEventsToAll(task, 'add'); // sse
         correlator();
-      }); // save new task to db
+      }).catch((error) => { console.error(error); }); // save new task to db
       res.setHeader('CPEE-CALLBACK', 'true');
     }
 
@@ -105,7 +101,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
       producedModel.create(req.body).then((t) => {
         logger.info(`New produced Task created: ${t}`);
         correlator();
-      }); // save new produced entry to db
+      }).catch((error) => { console.error(error); }); // save new produced entry to db
     }
 
     // delete task
@@ -115,7 +111,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
           logger.info(`New produced delete Task created: ${task}`);
           callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' });
         }
-      });
+      }).catch((error) => { console.error(error); });
     }
   } catch (error) {
     next(error);

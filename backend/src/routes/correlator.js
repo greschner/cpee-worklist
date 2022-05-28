@@ -50,7 +50,29 @@ const correlator = () => {
 
           const cArr = ['1', '2'].includes(pid);
 
-          Promise.all([
+          if (pid !== '6') {
+            producedModel.findByIdAndDelete(producedTask._id).then((producer) => {
+              if (producer) {
+                Promise.all([
+                  callbackInstance(callback, {
+                    ...producedTask.body,
+                    timestamp: producedTask.timestamp,
+                  }, cArr && { 'cpee-update': true }), // callback to CPEE
+                  ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
+                ]).catch((error) => { console.error(error); });
+              }
+            }).catch((error) => { console.error(error); });
+          } else {
+            Promise.all([
+              callbackInstance(callback, {
+                ...producedTask.body,
+                timestamp: producedTask.timestamp,
+              }), // callback to CPEE
+              taskModel.findByIdAndDelete(id), // remove from task list
+            ]).catch((error) => { console.error(error); });
+          }
+
+          /* Promise.all([
             callbackInstance(callback, {
               ...producedTask.body,
               timestamp: producedTask.timestamp,
@@ -59,7 +81,7 @@ const correlator = () => {
             ...pid !== '6' ? [
               producedModel.findByIdAndDelete(producedTask._id),
             ] : [], // remove from produced list
-          ]).catch((error) => error);
+          ]).catch((error) => { console.error(error); }); */
 
           sendEventsToAll(id, 'remove'); // sse
         }

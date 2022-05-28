@@ -2,8 +2,7 @@
 import db from './db';
 import app from './app';
 import logger from './logger';
-import { abandonInstances } from './utils/cpee';
-
+// import { abandonInstances } from './utils/cpee';
 // connect to database
 db.connect();
 
@@ -15,4 +14,4 @@ app.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
 
-// abandonInstances(3608, 3618);
+// abandonInstances(5989, 6231);

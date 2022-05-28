@@ -12,11 +12,13 @@ ENV TZ=Europe/Vienna
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
-COPY package*.json ./
+COPY --chown=node:node package*.json ./
 
-RUN npm ci --only=production
+RUN npm ci
 
 # Bundle app source
-COPY . .
+COPY --chown=node:node . .
+
+USER node
 
 CMD [ "node", "--experimental-specifier-resolution=node","src/index.js" ]

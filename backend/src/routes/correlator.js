@@ -59,7 +59,7 @@ const correlator = () => {
             ...pid !== '6' ? [
               producedModel.findByIdAndDelete(producedTask._id),
             ] : [], // remove from produced list
-          ]).catch((error) => { console.error(error); });
+          ]).catch((error) => error);
 
           sendEventsToAll(id, 'remove'); // sse
         }
@@ -92,7 +92,9 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
         logger.info(`New Task created: ${task}`);
         sendEventsToAll(task, 'add'); // sse
         correlator();
-      }).catch((error) => { console.error(error); }); // save new task to db
+      }).catch((error) => {
+        console.error(error);
+      }); // save new task to db
       res.setHeader('CPEE-CALLBACK', 'true');
     }
 
@@ -108,8 +110,8 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
     if (stop) {
       taskModel.findOneAndDelete({ pid: req.body.pid, instance: req.headers['cpee-instance'] }).then((task) => {
         if (task) {
-          logger.info(`New produced delete Task created: ${task}`);
-          callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' });
+          logger.info(`Delete Task: ${task}`);
+          callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' }).catch((error) => { console.error(error); });
         }
       }).catch((error) => { console.error(error); });
     }

@@ -9,6 +9,8 @@ const router = express.Router();
 
 let clients = [];
 
+const randomIntFromInterval = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+
 const sendEventsToAll = (data, event) => {
   clients.forEach((client) => client.res.write(`${event ? `event: ${event}\n` : ''}data: ${JSON.stringify(data)}\n\n`));
 };
@@ -59,7 +61,17 @@ const correlator = () => {
                     timestamp: producedTask.timestamp,
                   }, cArr && { 'cpee-update': true }), // callback to CPEE
                   ...!cArr ? [taskModel.findByIdAndDelete(id)] : [], // remove from task list
-                ]).catch((error) => { console.error(error); });
+                ]).catch((error) => {
+                  if (error.code === 'ECONNABORTED') {
+                    setTimeout(() => {
+                      callbackInstance(callback, {
+                        ...producedTask.body,
+                        timestamp: producedTask.timestamp,
+                      }, cArr && { 'cpee-update': true }).catch((e) => { console.error(e); });
+                    }, randomIntFromInterval(5, 15) * 1000);
+                  }
+                  console.error(error);
+                });
               }
             }).catch((error) => { console.error(error); });
           } else {

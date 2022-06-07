@@ -41,6 +41,7 @@ const taskschema = new Schema({
     ct: Number,
     valid: Boolean,
     complete: Boolean,
+    updated: Boolean,
     stop: Boolean,
   },
 }, { collection: 'producerlist', versionKey: false });

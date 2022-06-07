@@ -35,6 +35,7 @@ const sampleschema = new Schema({
     ct: Number,
     valid: Boolean,
     complete: Boolean,
+    updated: Boolean,
   },
   timestamp: {
     type: Date,

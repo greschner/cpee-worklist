@@ -46,15 +46,15 @@ const correlator = () => {
     }) => {
       matchTask(pid, body).then((producedTask) => {
         if (producedTask) {
-          logger.info(`MATCH Task: ${{
-            id, label, pid, instance, body,
-          }} with ${producedTask}`);
-
           const cArr = ['1', '2'].includes(pid);
 
           if (pid !== '6') {
             producedModel.findByIdAndDelete(producedTask._id).then((producer) => {
               if (producer) {
+                logger.info(`MATCH Task: ${JSON.stringify({
+                  id, label, pid, instance, body,
+                })} with ${producedTask}`);
+
                 Promise.all([
                   callbackInstance(callback, {
                     ...producedTask.body,

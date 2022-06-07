@@ -55,6 +55,26 @@ const correlator = () => {
                   id, label, pid, instance, body,
                 })} with ${producedTask}`);
 
+                if (['8', '9'].includes(pid)) { // checks whether there are remaining exports
+                  taskModel.find({
+                    _id: { $ne: id }, pid, 'body.sampleid': body.sampleid,
+                    /* 'body.plateid': body.plateid, */
+                  }).then((tasks) => {
+                    if (tasks.length) {
+                      logger.info(`found other tasks: ${tasks}`);
+                      tasks.forEach((task) => {
+                        Promise.all([
+                          callbackInstance(task.callback, {
+                            ...producedTask.body,
+                            timestamp: producedTask.timestamp,
+                          }),
+                          taskModel.findByIdAndDelete(task._id),
+                        ]).catch((error) => { console.error(error); });
+                      });
+                    }
+                  }).catch((error) => { console.error(error); });
+                }
+
                 Promise.all([
                   callbackInstance(callback, {
                     ...producedTask.body,

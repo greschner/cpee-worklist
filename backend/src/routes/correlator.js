@@ -132,23 +132,38 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
     // cpee callback request
     if (req.headers['cpee-callback'] && !stop) {
       const { pid, ...body } = req.body;
-      taskModel.create({
-        label: req.headers['cpee-label'],
-        pid,
-        activity: req.headers['cpee-activity'],
-        callback: req.headers['cpee-callback'],
-        callbackId: req.headers['cpee-callback-id'],
-        instance: req.headers['cpee-instance'],
-        instanceUuid: req.headers['cpee-instance-uuid'],
-        instanceUrl: req.headers['cpee-instance-url'],
-        body,
-      }).then((task) => {
+      const newTask = () => {
+        const task = {
+          label: req.headers['cpee-label'],
+          pid,
+          activity: req.headers['cpee-activity'],
+          callback: req.headers['cpee-callback'],
+          callbackId: req.headers['cpee-callback-id'],
+          instance: req.headers['cpee-instance'],
+          instanceUuid: req.headers['cpee-instance-uuid'],
+          instanceUrl: req.headers['cpee-instance-url'],
+          body,
+        };
+        if (['1', '2'].includes(pid)) {
+          return taskModel.findOneAndUpdate(
+            { pid },
+            task,
+            {
+              new: true,
+              upsert: true,
+            },
+          );
+        }
+        return taskModel.create(task);
+      };
+
+      newTask().then((task) => { // save new task to db
         logger.info(`New Task created: ${task}`);
         sendEventsToAll(task, 'add'); // sse
         correlator();
       }).catch((error) => {
         console.error(error);
-      }); // save new task to db
+      });
       res.setHeader('CPEE-CALLBACK', 'true');
     }
 

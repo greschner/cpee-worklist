@@ -142,8 +142,10 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
           instance: req.headers['cpee-instance'],
           instanceUuid: req.headers['cpee-instance-uuid'],
           instanceUrl: req.headers['cpee-instance-url'],
+          timestamp: Date.now(),
           body,
         };
+
         if (['1', '2'].includes(pid)) {
           return taskModel.findOneAndUpdate(
             { pid },
@@ -154,6 +156,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
             },
           );
         }
+
         return taskModel.create(task);
       };
 

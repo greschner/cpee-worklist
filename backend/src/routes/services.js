@@ -54,7 +54,7 @@ router.post('/timeout', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), (r
 
   const timeout = setTimeout(() => {
     logger.info(`Timeout callback to instance: ${req.headers['cpee-instance']}`);
-    axios.put(req.headers['cpee-callback'], true);
+    axios.put(req.headers['cpee-callback'], 'nil', { 'Content-Type': 'text/plain' }).catch((error) => { console.error(error); });
   }, parseInt(duration, 10) * 1000);
 
   res.set('CPEE-CALLBACK', 'true').sendStatus(200);

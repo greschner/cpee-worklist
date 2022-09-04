@@ -1,4 +1,5 @@
 import express from 'express';
+import axios from 'axios';
 import logger from '../logger';
 import { schemaValidation } from '../middleware';
 import { serviceSchema } from '../schemata';
@@ -49,12 +50,14 @@ router.post('/notifyall', schemaValidation(serviceSchema.POST_NOTIFYALL, 'body')
 
 router.post('/timeout', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), (req, res) => {
   logger.info(req.body, 'POST /timeout');
+  const { duration } = req.body;
 
   const timeout = setTimeout(() => {
-    logger.info(req.headers, 'Headers POST /timeout');
-  }, 3000);
+    logger.info(`Timeout callback to instance: ${req.headers['cpee-instance']}`);
+    axios.put(req.headers['cpee-callback'], true);
+  }, parseInt(duration, 10) * 1000);
 
-  res.sendStatus(200);
+  res.set('CPEE-CALLBACK', 'true').sendStatus(200);
 });
 
 router.get('/sse', (req, res) => {

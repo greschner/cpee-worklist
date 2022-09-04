@@ -11,7 +11,7 @@ const schemas = {
     level: Joi.string().valid('INFO', 'WARN', 'ERROR'),
   }),
   POST_TIMEOUT: Joi.object().keys({
-    duration: Joi.string(),
+    duration: Joi.number(),
     stop: Joi.string().valid('true'),
   }),
 };

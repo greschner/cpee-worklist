@@ -11,8 +11,22 @@ db.connect();
 const PORT = process.env.PORT || 4000;
 
 // listen on port
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
+
+const gracefulStop = (signal) => {
+  logger.info(`${signal} signal received. Shutting down...`);
+  server.close(() => {
+    logger.info('HTTP server closed.');
+    db.disconnect().then(() => {
+      process.exit();
+    });
+  });
+};
+
+// Enable graceful stop
+process.once('SIGINT', gracefulStop);
+process.once('SIGTERM', gracefulStop);
 
 // abandonInstances(6084, 6101);

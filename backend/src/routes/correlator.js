@@ -4,16 +4,11 @@ import logger from '../logger';
 import { callbackInstance } from '../utils/cpee';
 import { schemaValidation } from '../middleware';
 import { taskSchema } from '../schemata';
+import { SSEsendEventsToAll } from './services';
 
 const router = express.Router();
 
-let clients = [];
-
 const randomIntFromInterval = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
-
-const sendEventsToAll = (data, event) => {
-  clients.forEach((client) => client.res.write(`${event ? `event: ${event}\n` : ''}data: ${JSON.stringify(data)}\n\n`));
-};
 
 const matchTask = (pid, body) => {
   switch (pid) {
@@ -115,7 +110,7 @@ const correlator = () => {
             ] : [], // remove from produced list
           ]).catch((error) => { console.error(error); }); */
 
-          sendEventsToAll(id, 'remove'); // sse
+          SSEsendEventsToAll(id, 'remove'); // sse
         }
       }).catch((error) => { console.error(error); }); // match
     })).catch((error) => { console.error(error); });
@@ -162,7 +157,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
 
       newTask().then((task) => { // save new task to db
         logger.info(`New Task created: ${task}`);
-        sendEventsToAll(task, 'add'); // sse
+        SSEsendEventsToAll(task, 'add'); // sse
         correlator();
       }).catch((error) => {
         console.error(error);
@@ -233,27 +228,5 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
   console.log(req.body);
   res.sendStatus(200);
 }); */
-
-router.get('/sse', (req, res) => {
-  res.writeHead(200, {
-    Connection: 'keep-alive',
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-  });
-
-  const id = Date.now();
-
-  const newClient = {
-    id,
-    res,
-  };
-
-  clients.push(newClient);
-
-  req.on('close', () => {
-    logger.info(`${id} Connection closed`);
-    clients = clients.filter((client) => client.id !== id);
-  });
-});
 
 export default router;

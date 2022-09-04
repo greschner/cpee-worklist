@@ -13,5 +13,5 @@ export default {
       logger.info('Connection to database successful!');
     })
     .catch((err) => logger.error(`Error connecting to database: ${err}`)),
-  disconnect: () => mongoose.connection.close(),
+  disconnect: () => mongoose.disconnect(),
 };

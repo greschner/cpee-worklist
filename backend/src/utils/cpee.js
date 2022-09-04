@@ -148,7 +148,9 @@ const correlator = async () => {
   }
 };
 
+const getVisitLinkURL = (url) => `https://cpee.org/flow/index.html?monitor=${url}/`;
+
 export {
   startInstance, stopInstance, abandonInstance, newInstanceXML, newInstanceURL, callbackInstance,
-  abandonInstances, changeState, correlator,
+  abandonInstances, changeState, correlator, getVisitLinkURL,
 };

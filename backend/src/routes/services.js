@@ -57,8 +57,10 @@ router.post('/timeout', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), (r
 
   if (stop) {
     const o = timeouts.get(uuid);
-    clearTimeout(o.timeout);
-    callbackInstance(o.callback, 'nil', { 'Content-Type': 'text/plain' }).then(() => timeouts.delete(uuid)).catch((error) => { console.error(error); });
+    if (o) {
+      clearTimeout(o.timeout);
+      callbackInstance(o.callback, 'nil', { 'Content-Type': 'text/plain' }).then(() => timeouts.delete(uuid)).catch((error) => { console.error(error); });
+    }
   } else if (duration) {
     const callback = req.headers['cpee-callback'];
 

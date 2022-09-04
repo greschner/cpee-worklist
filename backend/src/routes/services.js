@@ -54,27 +54,28 @@ router.post('/timeout', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), (r
   const { duration, stop = false } = req.body;
 
   const uuid = req.headers['cpee-instance-uuid'];
-  const callback = req.headers['cpee-callback'];
 
   if (stop) {
     const o = timeouts.get(uuid);
     clearTimeout(o.timeout);
     callbackInstance(o.callback, 'nil', { 'Content-Type': 'text/plain' }).then(() => timeouts.delete(uuid)).catch((error) => { console.error(error); });
-    console.log(timeouts);
+  } else {
+    const callback = req.headers['cpee-callback'];
+
+    const timeout = setTimeout(() => {
+      logger.info(`Timeout callback to instance: ${req.headers['cpee-instance']}`);
+      callbackInstance(callback, 'true', { 'Content-Type': 'text/plain' }).then(() => timeouts.delete(uuid)).catch((error) => { console.error(error); });
+    }, parseInt(duration, 10) * 1000);
+
+    timeouts.set(uuid, {
+      callback,
+      timeout,
+    });
+
+    res.setHeader('CPEE-CALLBACK', 'true');
   }
 
-  const timeout = setTimeout(() => {
-    logger.info(`Timeout callback to instance: ${req.headers['cpee-instance']}`);
-    callbackInstance(callback, 'true', { 'Content-Type': 'text/plain' }).then(() => timeouts.delete(uuid)).catch((error) => { console.error(error); });
-    console.log(timeouts);
-  }, parseInt(duration, 10) * 1000);
-
-  timeouts.set(uuid, {
-    callback,
-    timeout,
-  });
-  console.log(timeouts);
-  res.set('CPEE-CALLBACK', 'true').sendStatus(200);
+  res.sendStatus(200);
 });
 
 router.get('/sse', (req, res) => {

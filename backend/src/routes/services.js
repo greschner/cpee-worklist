@@ -1,11 +1,12 @@
 import express from 'express';
-import axios from 'axios';
 import logger from '../logger';
 import { schemaValidation } from '../middleware';
 import { serviceSchema } from '../schemata';
-import { getVisitLinkURL } from '../utils/cpee';
+import { getVisitLinkURL, callbackInstance } from '../utils/cpee';
 
 const router = express.Router();
+
+const timeouts = new Map();
 
 let clients = [];
 
@@ -50,13 +51,29 @@ router.post('/notifyall', schemaValidation(serviceSchema.POST_NOTIFYALL, 'body')
 
 router.post('/timeout', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), (req, res) => {
   logger.info(req.body, 'POST /timeout');
-  const { duration } = req.body;
+  const { duration, stop = false } = req.body;
+
+  const uuid = req.headers['cpee-instance-uuid'];
+  const callback = req.headers['cpee-callback'];
+
+  if (stop) {
+    const o = timeouts.get(uuid);
+    clearTimeout(o.timeout);
+    callbackInstance(o.callback, 'nil', { 'Content-Type': 'text/plain' }).then(() => timeouts.delete(uuid)).catch((error) => { console.error(error); });
+    console.log(timeouts);
+  }
 
   const timeout = setTimeout(() => {
     logger.info(`Timeout callback to instance: ${req.headers['cpee-instance']}`);
-    axios.put(req.headers['cpee-callback'], 'nil', { 'Content-Type': 'text/plain' }).catch((error) => { console.error(error); });
+    callbackInstance(callback, 'true', { 'Content-Type': 'text/plain' }).then(() => timeouts.delete(uuid)).catch((error) => { console.error(error); });
+    console.log(timeouts);
   }, parseInt(duration, 10) * 1000);
 
+  timeouts.set(uuid, {
+    callback,
+    timeout,
+  });
+  console.log(timeouts);
   res.set('CPEE-CALLBACK', 'true').sendStatus(200);
 });
 

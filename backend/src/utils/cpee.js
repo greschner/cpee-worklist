@@ -11,7 +11,7 @@ import logger from '../logger';
 
 const callbackInstance = (instance, body, headers = {}) => {
   if (!instance) {
-    return null;
+    throw new Error('Instance undefined!');
   }
   return axios.put(instance, body, { headers });
 };

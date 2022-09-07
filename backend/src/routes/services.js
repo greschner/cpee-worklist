@@ -18,8 +18,10 @@ const dateDiffinHours = (a, b) => (a - b) / (1000 * 60 * 60);
 
 router.post('/pcheck', (req, res) => {
   console.log(req.body);
-  const { createdids } = req.body;
-  const { finishids } = req.body;
+  // const { createdids } = req.body;
+  // const { finishids } = req.body;
+  const createdids = JSON.parse(req.body.createdids);
+  const finishids = JSON.parse(req.body.finishids);
   // difference between createdids and finishids
   const unfinishedPlates = createdids.filter(
     ({ plateid: pid1 }) => !finishids.some(({ plateid: pid2 }) => pid1 === pid2),

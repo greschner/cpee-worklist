@@ -46,7 +46,7 @@ router.post('/pcheck', (req, res) => {
 
 router.post('/notifyall', schemaValidation(serviceSchema.POST_NOTIFYALL, 'body'), (req, res) => {
   const { event, level, message } = req.body;
-  logger.info(req.body, 'POST /notifyall:');
+  logger.info({ event, LEVEL: level, message }, 'POST /notifyall:');
   SSEsendEventsToAll({ level, message }, event);
   res.sendStatus(200);
 });

@@ -69,7 +69,7 @@ router.post('/timeout', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), (r
     const timeout = setTimeout(() => {
       logger.info(`Timeout callback to instance: ${req.headers['cpee-instance']}`);
       callbackInstance(callback, 'true', { 'Content-Type': 'text/plain' }).then(() => timeouts.delete(uuid)).catch((error) => { console.error(error); });
-    }, parseInt(duration, 10) * 1000);
+    }, parseInt(duration, 10) * 1000 * 60);
 
     timeouts.set(uuid, {
       callback,
@@ -87,6 +87,7 @@ router.get('/sse', (req, res) => {
     Connection: 'keep-alive',
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
+    'Access-Control-Allow-Origin': '*',
     'X-Accel-Buffering': 'no',
   });
 

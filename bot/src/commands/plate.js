@@ -19,10 +19,10 @@ export default {
         Plate:                    ${bold(data.plateid)}
         Status:                  ${data.status}
         Samples:              ${data.samples}
-        Created:               ${dateFormatter(data.created)}
-        Finished:              ${dateFormatter(data.finished)}
-        EPS imported:    ${dateFormatter(data.eps)}
-        Validated:            ${dateFormatter(data.validated)}
+        Created:               ${data.created ? dateFormatter(data.created) : 'not available'}
+        Finished:              ${data.finished ? dateFormatter(data.finished) : 'not available'}
+        EPS imported:    ${data.eps ? dateFormatter(data.eps) : 'not available'}
+        Validated:            ${data.validated ? dateFormatter(data.validated) : 'not available'}
         `;
       }
       return interaction.editReply(message);

@@ -12,8 +12,13 @@ services:
         container_name: frontend_ms
         restart: always
         ports:
-            - 8006:80    
-                  
+            - 8006:80
+
+    bot:
+        build: ./bot
+        container_name: bot
+        restart: always            
+
 networks:
   default:
     external: true

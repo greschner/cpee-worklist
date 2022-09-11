@@ -64,7 +64,7 @@ router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body
 // get all logging entries
 router.get('/', crudMid(async ({
   query: {
-    id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page = 1, limit = 1000, start, end, groupby, format, distinct = false,
+    id, name, user, mac, sid, pid, sort = 'timestamp', order = -1, page = 1, limit = 1000, start, end, groupby, format, distinct,
   },
 }) => {
   const groupByQuery = (gb, f) => {
@@ -115,9 +115,9 @@ router.get('/', crudMid(async ({
   };
   const [{ data, pagination }] = await loggingModel.aggregate([
     { $match: q },
-    ...isTrueDistinct ? [{
+    ...distinct ? [{
       $group: {
-        _id: '$body.sampleid',
+        _id: `$body.${distinct}`,
         doc: { $first: '$$ROOT' },
       },
     }, {

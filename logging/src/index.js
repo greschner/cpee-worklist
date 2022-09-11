@@ -12,6 +12,7 @@ import logger from './logger';
 import {
   BiRoute, ReceiveRoute, CorrelatorRoute, BaseDataRoute,
 } from './routes';
+import socket from './socketioClient';
 
 // read .env file, parse the contents, assign it to process.env
 dotenv.config();
@@ -62,6 +63,14 @@ const options = {
 
 https.createServer(options, app).listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
+});
+
+socket.on('connect', () => {
+  logger.info(`Connected to server with ID: ${socket.id}`);
+});
+
+socket.on('disconnect', (reason) => {
+  logger.info(`Socket disconnected with reason: ${reason}`);
 });
 
 /*

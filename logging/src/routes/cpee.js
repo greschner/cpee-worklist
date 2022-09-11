@@ -57,6 +57,8 @@ const newInstanceURL = (url, behavior = 'wait_running') => {
   );
 };
 
+const getVisitLinkURL = (url) => `${process.env.CPEE_URL}flow/index.html?monitor=${url}/`;
+
 export {
-  startInstance, newInstanceXML, newInstanceURL, callbackInstance,
+  startInstance, newInstanceXML, newInstanceURL, callbackInstance, getVisitLinkURL,
 };

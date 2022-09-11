@@ -87,6 +87,7 @@ router.get('/sse', (req, res) => {
     Connection: 'keep-alive',
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
+    'X-Accel-Buffering': 'no',
   });
 
   const id = Date.now();

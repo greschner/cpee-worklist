@@ -1,4 +1,4 @@
-import { io } from 'socket.io-client';
+/* import { io } from 'socket.io-client';
 import logger from './logger';
 import { loggingModel } from './model';
 
@@ -79,4 +79,4 @@ socket.on('plateid', async ({ plateid }, callback) => {
   callback(response);
 });
 
-export default socket;
+export default socket; */

@@ -77,8 +77,9 @@ const getStats = async (date) => {
     return null;
   }
 
-  const start = date;
-  const end = new Date(date.getTime() + 86400000); // + 1 day
+  const start = new Date(date.setHours(0, 0, 0, 0));
+  console.log(start);
+  const end = new Date(start.getTime() + 86400000); // + 1 day
 
   const response = {
     start,

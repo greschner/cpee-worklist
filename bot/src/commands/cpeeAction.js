@@ -68,6 +68,7 @@ export default {
 
       if (plainInstance) {
         console.log('hi');
+        let onlyOnePlainInstanceFlag = true;
         instances.forEach((instance) => {
           const test = ['labAutomationPlainInstance', 'finish_watcher', 'Wellplate', 'Sample'].some((item) => instance.name.includes(item));
           if (test) {
@@ -81,10 +82,13 @@ export default {
                   const { data: state } = await getInstanceState(parseInt(pathArr[3], 10));
                   if (state === 'abandoned') {
                     clearInterval(interval);
-                    newInstanceURL(plainInstanceURL).then(({ data }) => {
-                      logger.info(data, 'New PlainInstance spawned');
-                      interaction.editReply(`New PlainInstance spawned: ${hyperlink(getVisitLinkURL(data['CPEE-INSTANCE-URL']))}`);
-                    });
+                    if (onlyOnePlainInstanceFlag) {
+                      newInstanceURL(plainInstanceURL).then(({ data }) => {
+                        logger.info(data, 'New PlainInstance spawned');
+                        interaction.editReply(`New PlainInstance spawned: ${hyperlink(getVisitLinkURL(data['CPEE-INSTANCE-URL']))}`);
+                      });
+                      onlyOnePlainInstanceFlag = false;
+                    }
                   }
                 } catch (error) {
                   console.error(error);

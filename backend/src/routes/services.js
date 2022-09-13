@@ -103,6 +103,7 @@ router.get('/sse', (req, res) => {
   req.on('close', () => {
     logger.info(`${id} Connection closed`);
     clients = clients.filter((client) => client.id !== id);
+    // res.end();
   });
 });
 

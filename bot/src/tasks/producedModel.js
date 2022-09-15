@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 // Model for produced collection
-const taskschema = new Schema({
+const producedschema = new Schema({
   name: {
     type: String,
     required: true,
@@ -46,4 +46,5 @@ const taskschema = new Schema({
   },
 }, { collection: 'producerlist', versionKey: false });
 
-export default model('produced', taskschema);
+export { producedschema };
+export default model('produced', producedschema);

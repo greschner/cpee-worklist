@@ -45,4 +45,5 @@ const taskschema = new Schema({
   body: {},
 }, { versionKey: false });
 
+export { taskschema };
 export default model('task', taskschema);

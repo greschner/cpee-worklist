@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
+import socket from './socketioClient';
 import bot from './bot';
 import { token } from './config';
 import db from './db';
 import logger from './logger';
-import sseClient from './sseClient';
-
+// import sseClient from './sseClient';
 // connect to database
 db();
 
@@ -15,7 +15,8 @@ const gracefulStop = async (signal) => {
   logger.info(`${signal} signal received. Shutting down...`);
   bot.destroy();
   await mongoose.disconnect();
-  sseClient.close();
+  // sseClient.close();
+  socket.disconnect();
   process.exit();
 };
 

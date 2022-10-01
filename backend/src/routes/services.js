@@ -3,6 +3,7 @@ import logger from '../logger';
 import { schemaValidation } from '../middleware';
 import { serviceSchema } from '../schemata';
 import { getVisitLinkURL, callbackInstance } from '../utils/cpee';
+import { io } from '../socket';
 
 const router = express.Router();
 
@@ -47,7 +48,8 @@ router.post('/pcheck', (req, res) => {
 router.post('/notifyall', schemaValidation(serviceSchema.POST_NOTIFYALL, 'body'), (req, res) => {
   const { event, level, message } = req.body;
   logger.info({ event, LEVEL: level, message }, 'POST /notifyall:');
-  SSEsendEventsToAll({ level, message }, event);
+  io.emit('message', { level, message });
+  // SSEsendEventsToAll({ level, message }, event);
   res.sendStatus(200);
 });
 

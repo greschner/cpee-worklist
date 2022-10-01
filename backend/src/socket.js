@@ -5,7 +5,7 @@ import logger from './logger';
 
 // create server
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, { transports: ['websocket'] });
 
 io.on('connection', (socket) => {
   logger.info(`Connected: ${socket.id}`);

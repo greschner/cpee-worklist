@@ -12,7 +12,7 @@ const plainInstanceURL = process.env.CPEE_PLAIN_INSTANCE_URL;
 // get CPEE_FINISH_WATCHER_URL environment variable
 const finishWatcherURL = process.env.CPEE_FINISH_WATCHER_URL;
 const sseClient = process.env.SSE_CLIENT_URL; // get SSE_CLIENT_URL environment variable
-const socketServer = process.env.SOCKET_SERVER; // get SOCKET_SERVER environment variable
+const baseURL = process.env.BASE_URL; // get BASE_URL environment variable
 
 // check if BOT_TOKEN exists
 if (!token) {
@@ -50,8 +50,8 @@ if (!sseClient) {
 }
 
 // check if SOCKET_SERVER exists
-if (!socketServer) {
-  throw new TypeError('SOCKET_SERVER environment variable must be provided!');
+if (!baseURL) {
+  throw new TypeError('BASE_URL environment variable must be provided!');
 }
 
 export {
@@ -62,5 +62,5 @@ export {
   plainInstanceURL,
   finishWatcherURL,
   sseClient,
-  socketServer,
+  baseURL,
 };

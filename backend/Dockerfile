@@ -4,6 +4,7 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 
 # set environment variables
+ENV DEBUG=*
 ENV PORT=8000
 ENV TZ=Europe/Vienna
 ENV NODE_ENV=production

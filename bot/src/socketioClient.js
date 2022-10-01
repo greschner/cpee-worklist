@@ -21,13 +21,13 @@ socket.on('connect_error', (err) => {
   logger.info(`Connect error: ${err.message}`);
 });
 
-socket.on('message', (data) => {
-  console.log(data);
-  if (!data.message) {
+socket.on('message', ({ message, level }) => {
+  if (!message) {
     logger.warn('Message property undefined');
     return;
   }
-  logMessage(data.message, data.level);
+  logMessage(message, level);
+  logger.info({ LEVEL: level, message });
 });
 
 export default socket;

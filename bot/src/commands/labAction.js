@@ -8,7 +8,7 @@ import logger from '../logger.js';
 import { deleteTaskbyIdNin, deleteProducedbyIdNin } from '../tasks/tasksData.js';
 
 export default {
-  data: new SlashCommandBuilder().setName('cpee_action').setDescription('Execute specific actions on cpee')
+  data: new SlashCommandBuilder().setName('lab_action').setDescription('Execute specific actions on cpee')
     .addSubcommand((subcommand) => subcommand.setName('abandon')
       .setDescription('Abandon all lab instances').addIntegerOption((option) => option.setName('abandon_instance').setDescription('Enter the cpee instance number')))
     .addSubcommand((subcommand) => subcommand.setName('reset')

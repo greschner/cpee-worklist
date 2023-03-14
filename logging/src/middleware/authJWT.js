@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import logger from '../logger';
+import logger from '../logger.js';
 
 // middleware for jwt authentication
 const authenticateJWT = (req, res, next) => {

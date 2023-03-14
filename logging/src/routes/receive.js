@@ -1,10 +1,10 @@
 import express from 'express';
 import createError from 'http-errors';
 import axios from 'axios';
-import logger from '../logger';
-import receiveSchema from '../schemata/receiveSchema';
-import { loggingModel } from '../model';
-import { crudMid, idValMid, schemaValMid } from '../middleware';
+import logger from '../logger.js';
+import receiveSchema from '../schemata/receiveSchema.js';
+import { loggingModel } from '../model/index.js';
+import { crudMid, idValMid, schemaValMid } from '../middleware/index.js';
 // import authenticateJWT from '../middleware/authJWT.js';
 
 const router = express.Router();

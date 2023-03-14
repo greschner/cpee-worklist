@@ -1,5 +1,4 @@
-import { SlashCommandBuilder, bold } from 'discord.js';
-import { stripIndent } from 'common-tags';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { getStats } from '../logging/loggingData.js';
 
 export default {
@@ -19,9 +18,22 @@ export default {
       const dateStr = `${(`0${date.getDate()}`).slice(-2)}.${(`0${date.getMonth() + 1}`).slice(-2)}.${
         date.getFullYear()}`;
       console.log(data);
-      message = `Stats for ${bold(dateStr)}\n\n`;
       if (data) { // data is defined and has status property
-        message += stripIndent`
+        message = new EmbedBuilder()
+          .setColor(0x0099FF)
+          .setTitle(`Stats for ${dateStr}`)
+          .addFields(
+            { name: 'Created plates', value: `${data.newPlates}` },
+            { name: 'Finished plates', value: `${data.finishedPlates}` },
+            { name: 'Validated plates', value: `${data.validatedPlates}` },
+            { name: 'Scanned samples', value: `${data.scannedSamples}` },
+            { name: 'Deleted samples', value: `${data.deletedSamples}` },
+            { name: 'Positive samples', value: `${data.positives}` },
+            { name: 'Negative samples', value: `${data.negatives}` },
+            { name: 'Positive rate', value: `${(data.positiveRate * 100).toFixed(3)}%` },
+          )
+          .setTimestamp();
+        /* message += stripIndent`
         Created plates:           ${data.newPlates}
         Finished plates:          ${data.finishedPlates}
         Validated plates:        ${data.validatedPlates}
@@ -30,9 +42,9 @@ export default {
         Positive samples:       ${data.positives}
         Negative samples:     ${data.negatives}
         Positive rate:               ${(data.positiveRate * 100).toFixed(3)}%
-        `;
+        `; */
       }
-      return interaction.editReply(message);
+      return interaction.editReply({ embeds: [message] });
     }
     return interaction.reply(message);
   },

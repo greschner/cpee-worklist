@@ -4,8 +4,8 @@ import createError from 'http-errors';
 import axios from 'axios';
 import FormData from 'form-data';
 import { URLSearchParams } from 'url';
-import logger from '../logger';
-import { crudMid, idValMid, schemaValMid } from '../middleware';
+import logger from '../logger.js';
+import { crudMid, idValMid, schemaValMid } from '../middleware/index.js';
 
 /* axios.interceptors.request.use((request) => {
   console.log('Request: ', JSON.stringify(request, null, 2));

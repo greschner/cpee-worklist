@@ -1,4 +1,4 @@
-import { baseDataModel } from '../model';
+import { baseDataModel } from '../model/index.js';
 
 const initData = [
   {

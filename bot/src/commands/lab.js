@@ -1,4 +1,6 @@
-import { SlashCommandBuilder, bold, hyperlink } from 'discord.js';
+import {
+  SlashCommandBuilder, bold, hyperlink,
+} from 'discord.js';
 import { stripIndent } from 'common-tags';
 import { XMLParser } from 'fast-xml-parser';
 import axios from 'axios';
@@ -7,9 +9,10 @@ import {
 } from '../api/cpee.js';
 import { getTaskById } from '../tasks/tasksData.js';
 import dateFormatter from '../utils/dateFormatter.js';
+import { embedError, embedWarning } from '../utils/embedTemplates.js';
 
 export default {
-  data: new SlashCommandBuilder().setName('cpee').setDescription('Get CPEE information'),
+  data: new SlashCommandBuilder().setName('lab').setDescription('Get current lab health status'),
   async execute(interaction) {
     let message = '';
     try {
@@ -69,15 +72,15 @@ export default {
 
       if (!plainInstanceArr?.length) {
         message += '\n\nNo plain instance found!';
-        return interaction.editReply(message);
+        return interaction.editReply({ embeds: [embedError(message)] });
       }
       if (plainInstanceArr?.length > 2) {
-        message += '\n\nWarning: Multiple plain instances detected! Please use only one plain instance at a time!';
-        return interaction.editReply(message);
+        message += '\n\nMultiple plain instances detected! Please use only one plain instance at a time!';
+        return interaction.editReply({ embeds: [embedWarning(message)] });
       }
       if (!plainInstanceArr?.length === 1) {
-        message += `\n\nWarning: '${plainInstanceArr === '1' ? 'plain' : 'new wellplate'}' instance not found!`;
-        return interaction.editReply(message);
+        message += `\n\n'${plainInstanceArr === '1' ? 'plain' : 'new wellplate'}' instance not found!`;
+        return interaction.editReply({ embeds: [embedWarning(message)] });
       }
 
       const [plainInstance, plainSubInstance] = plainInstanceArr;
@@ -116,11 +119,11 @@ export default {
     } catch (error) {
       message = 'An internal error occured';
       if (error.response?.status === 404) {
-        message = `${bold('Warning')}: Plain instance was not properly removed. Please spawn a new plain instance!`;
+        message = 'Plain instance was not properly removed. Please spawn a new plain instance!';
       } else {
         console.error(error);
       }
-      return interaction.editReply(message);
+      return interaction.editReply({ embeds: [embedWarning(message)] });
     }
   },
 };

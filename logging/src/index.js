@@ -7,11 +7,11 @@ import https from 'https';
 import fs from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import db from './db';
-import logger from './logger';
+import db from './db.js';
+import logger from './logger.js';
 import {
   BiRoute, ReceiveRoute, CorrelatorRoute, BaseDataRoute,
-} from './routes';
+} from './routes/index.js';
 // import socket from './socketioClient';
 
 // read .env file, parse the contents, assign it to process.env

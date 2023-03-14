@@ -1,7 +1,7 @@
 // route for base data
 import express from 'express';
-import { baseDataModel } from '../model';
-import { crudMid } from '../middleware';
+import { baseDataModel } from '../model/index.js';
+import { crudMid } from '../middleware/index.js';
 
 const router = express.Router();
 

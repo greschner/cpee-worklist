@@ -3,8 +3,8 @@ import {
 } from 'discord.js';
 import { join, resolve } from 'path';
 import { readdirSync } from 'fs';
-import logger from './logger';
-import deployCommands from './deployCommands';
+import logger from './logger.js';
+import deployCommands from './deployCommands.js';
 
 deployCommands();
 

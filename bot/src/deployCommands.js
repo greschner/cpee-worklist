@@ -2,8 +2,8 @@ import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v10';
 import { join, resolve } from 'path';
 import { readdirSync } from 'fs';
-import { clientId, token } from './config';
-import logger from './logger';
+import { clientId, token } from './config.js';
+import logger from './logger.js';
 
 export default async () => {
   const commands = [];

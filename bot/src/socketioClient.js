@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
-import { baseURL } from './config';
-import logger from './logger';
-import { logMessage } from './bot';
+import { baseURL } from './config.js';
+import logger from './logger.js';
+import { logMessage } from './bot.js';
 
 const socket = io(baseURL, { path: '/backend/socket.io' });
 

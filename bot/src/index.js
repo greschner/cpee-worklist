@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import socket from './socketioClient';
-import bot from './bot';
-import { token } from './config';
-import db from './db';
-import logger from './logger';
+import socket from './socketioClient.js';
+import bot from './bot.js';
+import { token } from './config.js';
+import db from './db.js';
+import logger from './logger.js';
 // import sseClient from './sseClient';
 // connect to database
 db();

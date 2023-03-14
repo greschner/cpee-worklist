@@ -4,9 +4,9 @@ import { XMLParser } from 'fast-xml-parser';
 import axios from 'axios';
 import {
   getInstanceState, getVisitLink, getEngineInformation, getInstanceInformation, getVisitLinkURL,
-} from '../api/cpee';
-import { getTaskById } from '../tasks/tasksData';
-import dateFormatter from '../utils/dateFormatter';
+} from '../api/cpee.js';
+import { getTaskById } from '../tasks/tasksData.js';
+import dateFormatter from '../utils/dateFormatter.js';
 
 export default {
   data: new SlashCommandBuilder().setName('cpee').setDescription('Get CPEE information'),

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, bold } from 'discord.js';
-import { getSample } from '../logging/loggingData';
-import dateFormatter from '../utils/dateFormatter';
+import { getSample } from '../logging/loggingData.js';
+import dateFormatter from '../utils/dateFormatter.js';
 
 export default {
   data: new SlashCommandBuilder().setName('sample').setDescription('Gets the sample information').addStringOption((option) => option.setName('sampleid')

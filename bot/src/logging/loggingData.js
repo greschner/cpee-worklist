@@ -1,6 +1,6 @@
-import loggingModel from './loggingModel';
-import logger from '../logger';
-import loggingService from '../api/loggingService';
+import loggingModel from './loggingModel.js';
+import logger from '../logger.js';
+import loggingService from '../api/loggingService.js';
 
 const getPlate = async (plateid) => {
   const response = {

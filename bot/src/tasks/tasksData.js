@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
-import { encodeMongoURI } from '../db';
+import { encodeMongoURI } from '../db.js';
 
-let { default: taskModel } = await import('./taskModel');
-let { default: producedModel } = await import('./producedModel');
+let { default: taskModel } = await import('./taskModel.js');
+let { default: producedModel } = await import('./producedModel.js');
 
 if (process.env.MONGO_DB_URI2) {
   const conn = mongoose.createConnection(encodeMongoURI(process.env.MONGO_DB_URI2));
-  const { taskschema } = await import('./taskModel');
-  const { producedschema } = await import('./producedModel');
+  const { taskschema } = await import('./taskModel.js');
+  const { producedschema } = await import('./producedModel.js');
   taskModel = conn.model('task', taskschema);
   producedModel = conn.model('produced', producedschema);
 }

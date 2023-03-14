@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, bold } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import { getStats } from '../logging/loggingData';
+import { getStats } from '../logging/loggingData.js';
 
 export default {
   data: new SlashCommandBuilder().setName('stats').setDescription('Gets the statistics 📊').addStringOption((option) => option.setName('date')

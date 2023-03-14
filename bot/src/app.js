@@ -1,7 +1,7 @@
 import express from 'express';
 import createError from 'http-errors';
 import cors from 'cors';
-import sse from './sse';
+import sse from './sse.js';
 
 // create object of express module
 const app = express();

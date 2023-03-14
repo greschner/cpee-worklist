@@ -1,6 +1,6 @@
 import axios from 'axios';
 import https from 'https';
-import { loggingURL } from '../config';
+import { loggingURL } from '../config.js';
 
 // At request level
 const agent = new https.Agent({

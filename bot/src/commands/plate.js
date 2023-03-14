@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, bold } from 'discord.js';
 import { stripIndent } from 'common-tags';
-import { getPlate } from '../logging/loggingData';
-import dateFormatter from '../utils/dateFormatter';
+import { getPlate } from '../logging/loggingData.js';
+import dateFormatter from '../utils/dateFormatter.js';
 
 export default {
   data: new SlashCommandBuilder().setName('plate').setDescription('Gets the wellplate information').addStringOption((option) => option.setName('plateid')

@@ -40,7 +40,6 @@ const sampleschema = new Schema({
   timestamp: {
     type: Date,
     default: Date.now,
-    expires: '90d',
   },
 }, { versionKey: false });
 

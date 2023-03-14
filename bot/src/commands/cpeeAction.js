@@ -2,10 +2,10 @@ import { SlashCommandBuilder, hyperlink } from 'discord.js';
 import {
   abandonInstance, getCurrentInstances, getInstanceState, newInstanceURL,
   startInstance, getVisitLinkURL,
-} from '../api/cpee';
-import { plainInstanceURL } from '../config';
-import logger from '../logger';
-import { deleteTaskbyIdNin, deleteProducedbyIdNin } from '../tasks/tasksData';
+} from '../api/cpee.js';
+import { plainInstanceURL } from '../config.js';
+import logger from '../logger.js';
+import { deleteTaskbyIdNin, deleteProducedbyIdNin } from '../tasks/tasksData.js';
 
 export default {
   data: new SlashCommandBuilder().setName('cpee_action').setDescription('Execute specific actions on cpee')

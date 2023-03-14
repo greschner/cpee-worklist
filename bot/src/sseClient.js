@@ -1,7 +1,7 @@
 import EventSource from 'eventsource';
-import { sseClient } from './config';
-import logger from './logger';
-import { logMessage } from './bot';
+import { sseClient } from './config.js';
+import logger from './logger.js';
+import { logMessage } from './bot.js';
 
 const evtSource = new EventSource(sseClient);
 

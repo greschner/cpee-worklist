@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, bold } from 'discord.js';
-import { stripIndent } from 'common-tags';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import { embedError } from '../utils/embedTemplates.js';
 import { getPlate } from '../logging/loggingData.js';
 import dateFormatter from '../utils/dateFormatter.js';
 
@@ -9,24 +9,26 @@ export default {
     .setRequired(true)),
   async execute(interaction) {
     const plateid = interaction.options.getString('plateid');
-    let message = 'Invalid plateID!';
+    let message = embedError('Please enter a valid plateID!', '❌ Invalid plateID');
     if (/^ *[0-9]+\s*$/i.test(plateid)) {
       await interaction.deferReply();
       const data = await getPlate(plateid);
       console.log(data);
       if (data?.status) { // data is defined and has status property
-        message = stripIndent`
-        Plate:                    ${bold(data.plateid)}
-        Status:                  ${data.status}
-        Samples:              ${data.samples}
-        Created:               ${data.created ? dateFormatter(data.created) : 'not available'}
-        Finished:              ${data.finished ? dateFormatter(data.finished) : 'not available'}
-        EPS imported:    ${data.eps ? dateFormatter(data.eps) : 'not available'}
-        Validated:            ${data.validated ? dateFormatter(data.validated) : 'not available'}
-        `;
+        message = new EmbedBuilder()
+          .setColor(0x0099FF)
+          .setTitle(`Plate: ${plateid}`)
+          .addFields(
+            { name: 'Status', value: `${data.status}` },
+            { name: 'Samples', value: `${data.samples}` },
+            { name: 'Created', value: `${data.created ? dateFormatter(data.created) : 'not available'}` },
+            { name: 'Finished', value: `${data.finished ? dateFormatter(data.finished) : 'not available'}` },
+            { name: 'EPS imported:', value: `${data.eps ? dateFormatter(data.eps) : 'not available'}` },
+            { name: 'Validated', value: `${data.validated ? dateFormatter(data.validated) : 'not available'}` },
+          );
       }
-      return interaction.editReply(message);
+      return interaction.editReply({ embeds: [message] });
     }
-    return interaction.reply(message);
+    return interaction.reply({ embeds: [message] });
   },
 };

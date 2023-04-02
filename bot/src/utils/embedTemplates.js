@@ -6,9 +6,9 @@ const embedWarning = (message) => new EmbedBuilder()
   .setDescription(message)
   .setTimestamp();
 
-const embedError = (message) => new EmbedBuilder()
+const embedError = (message, title = '❌ Error') => new EmbedBuilder()
   .setColor(0xCC3300)
-  .setTitle('❌ Error')
+  .setTitle(title)
   .setDescription(message)
   .setTimestamp();
 

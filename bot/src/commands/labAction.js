@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, hyperlink } from 'discord.js';
+import { SlashCommandBuilder, hyperlink, EmbedBuilder } from 'discord.js';
 import {
   abandonInstance, getCurrentInstances, getInstanceState, newInstanceURL,
   startInstance, getVisitLinkURL,
@@ -6,11 +6,21 @@ import {
 import { plainInstanceURL } from '../config.js';
 import logger from '../logger.js';
 import { deleteTaskbyIdNin, deleteProducedbyIdNin } from '../tasks/tasksData.js';
+import { embedError, embedInformation, embedWarning } from '../utils/embedTemplates.js';
+
+const newPlainInstanceEmbed = (data) => new EmbedBuilder()
+  .setColor(0x57F287)
+  .setTitle('✅ New plain instance successfully spawned')
+  .addFields(
+    { name: 'Instance', value: `${data['CPEE-INSTANCE']}` },
+    { name: 'Instance UUID', value: `${data['CPEE-INSTANCE-UUID']}` },
+    { name: 'Instance URL', value: `${hyperlink(getVisitLinkURL(data['CPEE-INSTANCE-URL']))}` },
+  );
 
 export default {
   data: new SlashCommandBuilder().setName('lab_action').setDescription('Execute specific actions on cpee')
     .addSubcommand((subcommand) => subcommand.setName('abandon')
-      .setDescription('Abandon all lab instances').addIntegerOption((option) => option.setName('abandon_instance').setDescription('Enter the cpee instance number')))
+      .setDescription('Abandon all lab instances including plain instance').addIntegerOption((option) => option.setName('abandon_instance').setDescription('Enter the cpee instance number')))
     .addSubcommand((subcommand) => subcommand.setName('reset')
       .setDescription('Abandon all wellplate and sample instances'))
     .addSubcommand((subcommand) => subcommand.setName('restart')
@@ -63,7 +73,7 @@ export default {
 
       await interaction.reply('executed...');
     } else if (subcommand === 'restart') {
-      let message = 'executing...';
+      let message = new EmbedBuilder().setTitle('🕣 executing...').setColor(0x0099FF);
       const plainInstance = instances.find(({ name }) => name === 'labAutomationPlainInstance');
 
       if (plainInstance) {
@@ -85,7 +95,7 @@ export default {
                     if (onlyOnePlainInstanceFlag) {
                       newInstanceURL(plainInstanceURL).then(({ data }) => {
                         logger.info(data, 'New PlainInstance spawned');
-                        interaction.editReply(`New PlainInstance spawned: ${hyperlink(getVisitLinkURL(data['CPEE-INSTANCE-URL']))}`);
+                        interaction.editReply({ embeds: [newPlainInstanceEmbed(data)] });
                       });
                       onlyOnePlainInstanceFlag = false;
                     }
@@ -103,33 +113,33 @@ export default {
         ).catch(console.error);
       } else { // plain instance not found start new one
         const { data } = await newInstanceURL(plainInstanceURL).catch(console.error);
-        message = `New PlainInstance spawned: ${hyperlink(getVisitLinkURL(data['CPEE-INSTANCE-URL']))}`;
+        message = newPlainInstanceEmbed(data);
       }
 
-      await interaction.reply(message);
+      await interaction.reply({ embeds: [message] });
     } else if (subcommand === 'start') {
-      let message = 'Undefined response...';
+      let message = embedError('Undefined response...');
       try {
         const plainInstance = instances.find(({ name }) => name === 'labAutomationPlainInstance');
 
         if (plainInstance?.state === 'running') {
-          message = `PlainInstance is already running: ${hyperlink(getVisitLinkURL(plainInstance.url))}`;
+          message = embedWarning(`Plain instance is already running: ${hyperlink(getVisitLinkURL(plainInstance.url))}`);
         }
 
         if (!plainInstance) { // plain instance not found start new one
           const { data } = await newInstanceURL(plainInstanceURL);
-          message = `New PlainInstance spawned: ${hyperlink(getVisitLinkURL(data['CPEE-INSTANCE-URL']))}`;
+          message = newPlainInstanceEmbed(data);
         }
-
+        console.log(plainInstance);
         if (['ready', 'stopped'].includes(plainInstance?.state)) { // start plain instance
           startInstance(plainInstance.url);
-          message = `PlainInstance started: ${hyperlink(getVisitLinkURL(plainInstance.url))}`;
+          message = embedInformation(`Plain instance started: ${hyperlink(getVisitLinkURL(plainInstance.url))}`);
         }
       } catch (error) {
         console.error(error);
-        message = 'An error has been occured...';
+        message = embedError('An error has been occured...');
       } finally {
-        await interaction.reply(message);
+        await interaction.reply({ embeds: [message] });
       }
     }
   },

@@ -12,9 +12,9 @@ const getInstanceState = (id) => axios.get(`${cpeeURL}flow/engine/${id}/properti
 
 // const getInstanceState = (id) => 'running';
 
-const getEngineInformation = (engine = 'https%3A%2F%2Fcpee.org%2Fflow%2Fengine%2F') => axios.get(`${cpeeURL}design/server/dash/stats/?engine=${engine}`);
+const getEngineInformation = (engine = 'https%3A%2F%2Fcpee.org%2Fflow%2Fengine%2F') => axios.get(`${cpeeURL}hub/server/dash/stats/?engine=${engine}`);
 
-const getInstanceInformation = (engine = 'https%3A%2F%2Fcpee.org%2Fflow%2Fengine%2F') => axios.get(`${cpeeURL}design/server/dash/instances?engine=${engine}`);
+const getInstanceInformation = (engine = 'https%3A%2F%2Fcpee.org%2Fflow%2Fengine%2F') => axios.get(`${cpeeURL}hub/server/dash/instances?engine=${engine}`);
 
 const getCurrentInstances = async (engine = 'https%3A%2F%2Fcpee.org%2Fflow%2Fengine%2F') => {
   try {

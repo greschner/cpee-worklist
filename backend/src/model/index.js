@@ -1,2 +1,2 @@
-export { default as taskModel } from './taskModel';
-export { default as producedModel } from './producedModel';
+export { default as taskModel } from './taskModel.js';
+export { default as producedModel } from './producedModel.js';

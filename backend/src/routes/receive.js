@@ -1,8 +1,8 @@
 import express from 'express';
 import axios from 'axios';
-import { taskModel } from '../model';
-import logger from '../logger';
-import { idValidation } from '../middleware';
+import { taskModel } from '../model/index.js';
+import logger from '../logger.js';
+import { idValidation } from '../middleware/index.js';
 
 const router = express.Router();
 

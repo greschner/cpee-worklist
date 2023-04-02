@@ -1,9 +1,9 @@
 import express from 'express';
-import logger from '../logger';
-import { schemaValidation } from '../middleware';
-import { serviceSchema } from '../schemata';
-import { getVisitLinkURL, callbackInstance } from '../utils/cpee';
-import { io } from '../socket';
+import logger from '../logger.js';
+import { schemaValidation } from '../middleware/index.js';
+import { serviceSchema } from '../schemata/index.js';
+import { getVisitLinkURL, callbackInstance } from '../utils/cpee.js';
+import { io } from '../socket.js';
 
 const router = express.Router();
 

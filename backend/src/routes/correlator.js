@@ -1,10 +1,10 @@
 import express from 'express';
-import { taskModel, producedModel } from '../model';
-import logger from '../logger';
-import { callbackInstance } from '../utils/cpee';
-import { schemaValidation } from '../middleware';
-import { taskSchema } from '../schemata';
-import { SSEsendEventsToAll } from './services';
+import { taskModel, producedModel } from '../model/index.js';
+import logger from '../logger.js';
+import { callbackInstance } from '../utils/cpee.js';
+import { schemaValidation } from '../middleware/index.js';
+import { taskSchema } from '../schemata/index.js';
+import { SSEsendEventsToAll } from './services.js';
 
 const router = express.Router();
 

@@ -1,2 +1,2 @@
-export { default as taskSchema } from './taskSchema';
-export { default as serviceSchema } from './serviceSchema';
+export { default as taskSchema } from './taskSchema.js';
+export { default as serviceSchema } from './serviceSchema.js';

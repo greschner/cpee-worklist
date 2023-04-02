@@ -2,7 +2,7 @@ import express from 'express';
 import createError from 'http-errors';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { receiveRoute, correlatorRoute, servicesRoute } from './routes';
+import { receiveRoute, correlatorRoute, servicesRoute } from './routes/index.js';
 
 // create object of express module
 const app = express();

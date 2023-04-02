@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:19-alpine
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -20,4 +20,4 @@ COPY --chown=node:node . .
 
 USER node
 
-CMD [ "node","--experimental-specifier-resolution=node","src/index.js" ]
+CMD [ "node","src/index.js" ]

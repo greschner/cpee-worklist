@@ -1,7 +1,7 @@
 // created with lots of ❤️ by Jan André Greschner
-import db from './db';
-import logger from './logger';
-import { server, io } from './socket';
+import db from './db.js';
+import logger from './logger.js';
+import { server, io } from './socket.js';
 
 // connect to database
 db.connect();

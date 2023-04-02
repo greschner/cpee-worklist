@@ -1,7 +1,7 @@
 import FormData from 'form-data';
-import axios from './getAxios';
-import { taskModel, producedModel } from '../model';
-import logger from '../logger';
+import axios from './getAxios.js';
+import { taskModel, producedModel } from '../model/index.js';
+import logger from '../logger.js';
 
 // debug log every request
 /* axios.interceptors.request.use((request) => {

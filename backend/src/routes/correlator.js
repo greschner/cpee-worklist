@@ -165,13 +165,13 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
       res.setHeader('CPEE-CALLBACK', 'true');
     }
 
-    // producer
+    /* // producer
     if (req.headers['content-id'] === 'producer') {
       producedModel.create(req.body).then((t) => {
         logger.info(`New produced Task created: ${t}`);
         correlator();
       }).catch((error) => { console.error(error); }); // save new produced entry to db
-    }
+    } */
 
     // delete task
     if (stop) {
@@ -183,8 +183,20 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
       }).catch((error) => { console.error(error); });
     }
   } catch (error) {
+    console.log(error);
     next(error);
   }
+  res.status(200).send();
+});
+
+router.post('/producer', schemaValidation(taskSchema.POST, 'body'), (req, res) => {
+  // save new produced entry to db
+  producedModel.create(req.body)
+    .then((t) => {
+      logger.info(`New lab produced Task created: ${t}`);
+    })
+    .catch(console.log);
+
   res.status(200).send();
 });
 

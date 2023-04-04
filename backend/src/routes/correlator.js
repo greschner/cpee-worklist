@@ -158,7 +158,7 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
       newTask().then((task) => { // save new task to db
         logger.info(`New Task created: ${task}`);
         SSEsendEventsToAll(task, 'add'); // sse
-        correlator();
+        // correlator();
       }).catch((error) => {
         console.error(error);
       });
@@ -194,6 +194,7 @@ router.post('/producer', schemaValidation(taskSchema.POST, 'body'), (req, res) =
   producedModel.create(req.body)
     .then((t) => {
       logger.info(`New lab produced Task created: ${t}`);
+      correlator();
     })
     .catch(console.log);
 

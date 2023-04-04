@@ -21,7 +21,7 @@ export default {
       if (data) { // data is defined and has status property
         message = new EmbedBuilder()
           .setColor(0x0099FF)
-          .setTitle(`Stats for ${dateStr}`)
+          .setTitle(`📊 Stats for ${dateStr}`)
           .addFields(
             { name: 'Created plates', value: `${data.newPlates}` },
             { name: 'Finished plates', value: `${data.finishedPlates}` },

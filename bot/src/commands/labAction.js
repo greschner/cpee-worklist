@@ -36,7 +36,7 @@ export default {
         abandonInstance(instanceNumber);
       } else {
         instances.forEach((instance) => {
-          const test = ['Wellplate', 'Sample', 'labAutomationPlainInstance', 'finish_watcher'].some((item) => instance.name.includes(item));
+          const test = ['Wellplate', 'Sample', 'Lab Plain Instance', 'Lab Finish Watcher'].some((item) => instance.name.includes(item));
           if (test) {
             const { pathname } = new URL(instance.url);
             const pathArr = pathname.split('/');
@@ -74,19 +74,19 @@ export default {
       await interaction.reply('executed...');
     } else if (subcommand === 'restart') {
       let message = new EmbedBuilder().setTitle('🕣 executing...').setColor(0x0099FF);
-      const plainInstance = instances.find(({ name }) => name === 'labAutomationPlainInstance');
+      const plainInstance = instances.find(({ name }) => name === 'Lab Plain Instance');
 
       if (plainInstance) {
         console.log('hi');
         let onlyOnePlainInstanceFlag = true;
         instances.forEach((instance) => {
-          const test = ['labAutomationPlainInstance', 'finish_watcher', 'Wellplate', 'Sample'].some((item) => instance.name.includes(item));
+          const test = ['Lab Plain Instance', 'Lab Finish Watcher', 'Wellplate', 'Sample'].some((item) => instance.name.includes(item));
           if (test) {
             const { pathname } = new URL(instance.url);
             const pathArr = pathname.split('/');
 
             abandonInstance(parseInt(pathArr[3], 10));
-            if (instance.name === 'labAutomationPlainInstance') {
+            if (instance.name === 'Lab Plain Instance') {
               const interval = setInterval(async () => {
                 try {
                   const { data: state } = await getInstanceState(parseInt(pathArr[3], 10));
@@ -120,7 +120,7 @@ export default {
     } else if (subcommand === 'start') {
       let message = embedError('Undefined response...');
       try {
-        const plainInstance = instances.find(({ name }) => name === 'labAutomationPlainInstance');
+        const plainInstance = instances.find(({ name }) => name === 'Lab Plain Instance');
 
         if (plainInstance?.state === 'running') {
           message = embedWarning(`Plain instance is already running: ${hyperlink(getVisitLinkURL(plainInstance.url))}`);

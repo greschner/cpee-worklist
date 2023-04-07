@@ -1,4 +1,5 @@
 // created with lots of ❤️ by Jan André Greschner
+import appInsights from 'applicationinsights';
 import db from './db.js';
 import logger from './logger.js';
 import { server, io } from './socket.js';
@@ -13,6 +14,12 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
   logger.info(`Server is listening on port: ${PORT}`);
 });
+
+// app insights
+appInsights
+  .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
+  .start()
+  .setSendLiveMetrics(true);
 
 const gracefulStop = (signal) => {
   logger.info(`${signal} signal received. Shutting down...`);

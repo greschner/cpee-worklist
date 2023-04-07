@@ -13,6 +13,7 @@
   "author": "Jan André Greschner",
   "license": "MIT",
   "dependencies": {
+    "applicationinsights": "^2.5.1",
     "axios": "^1.3.4",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",

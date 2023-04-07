@@ -17,7 +17,7 @@ server.listen(PORT, () => {
 
 // app insights
 appInsights
-  .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
+  .setup()
   .start()
   .setSendLiveMetrics(true);
 

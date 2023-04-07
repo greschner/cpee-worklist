@@ -106,7 +106,6 @@ router.post('/timeout2', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), a
   const uuid = req.headers['cpee-instance-uuid'];
   try {
     if (stop) {
-      console.log('test');
       await timeoutsubModel.findByIdAndUpdate(uuid, { cbFlag: false });
       timeoutModel.findByIdAndDelete(uuid).catch(console.log);
     } else if (duration) {

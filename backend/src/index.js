@@ -1,5 +1,4 @@
 // created with lots of ❤️ by Jan André Greschner
-import appInsights from 'applicationinsights';
 import db from './db.js';
 import logger from './logger.js';
 import { server, io } from './socket.js';

@@ -39,9 +39,11 @@ timeoutModel.watch([{
     operationType: 'delete',
   },
 }]).on('change', async ({ documentKey: { _id } }) => {
-  const { callback, cbFlag } = await timeoutsubModel.findByIdAndDelete(_id).catch(console.log);
-  logger.info(`Timeout callback to instance: ${_id}`);
-  callbackInstance(callback, cbFlag ? 'true' : 'nil', { 'Content-Type': 'text/plain' }).catch(console.log);
+  const tsub = await timeoutsubModel.findByIdAndDelete(_id).catch(console.log);
+  if (tsub) {
+    logger.info(`Timeout callback to instance: ${_id}`);
+    callbackInstance(tsub.callback, tsub.cbFlag ? 'true' : 'nil', { 'Content-Type': 'text/plain' }).catch(console.log);
+  }
 });
 
 export { timeoutModel, timeoutsubModel };

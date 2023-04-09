@@ -1,15 +1,15 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { jest } from '@jest/globals';
 import axios from 'axios';
-import * as testData from './testData';
+import * as testData from './testData.js';
 
 // eslint-disable-next-line no-promise-executor-return
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const correlatorRef = 'https://greschner.azurewebsites.net/backend/corr';
+const correlatorRef = 'https://greschner.azurewebsites.net/backend/corr/producer';
 const headers = {
   'content-id': 'producer',
 };
-const numberOfSamples = 10;
+const numberOfSamples = 40;
 const numberOfSampleDeletes = 2;
 const samples = [];
 
@@ -35,7 +35,7 @@ test('New Sample', async () => {
     const response = await axios.post(correlatorRef, sample, { headers });
     expect(response.status).toBe(200);
     // eslint-disable-next-line no-await-in-loop
-    await sleep(1000);
+    await sleep(2000);
   }
   /* const responses = await Promise.all(promises);
   responses.forEach((response) => {
@@ -43,7 +43,7 @@ test('New Sample', async () => {
   }); */
 });
 
-/* test('Delete Sample', async () => {
+test('Delete Sample', async () => {
   if (numberOfSampleDeletes < numberOfSamples) {
     const promises = [];
     // eslint-disable-next-line no-plusplus
@@ -57,7 +57,7 @@ test('New Sample', async () => {
       expect(response.status).toBe(200);
     });
   }
-}); */
+});
 
 test('Finish Wellplate', async () => {
   const response = await axios.post(correlatorRef, testData.finishWellplate(), { headers });

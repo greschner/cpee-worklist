@@ -51,7 +51,7 @@ router.post('/notifyall', schemaValidation(serviceSchema.POST_NOTIFYALL, 'body')
   logger.info({ event, LEVEL: level, message }, 'POST /notifyall:');
   io.emit('message', { level, message });
   // SSEsendEventsToAll({ level, message }, event);
-  res.sendStatus(200);
+  res.status(200).send();
 });
 
 router.post('/timeout', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), (req, res) => {
@@ -91,7 +91,7 @@ router.post('/timeout', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), (r
     console.log(error);
   }
 
-  res.sendStatus(200);
+  res.status(200).send();
 });
 
 router.post('/timeout2', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), async (req, res, next) => {
@@ -122,7 +122,7 @@ router.post('/timeout2', schemaValidation(serviceSchema.POST_TIMEOUT, 'body'), a
       ]);
       res.setHeader('CPEE-CALLBACK', 'true');
     }
-    res.sendStatus(200);
+    res.status(200).send();
   } catch (error) {
     next(error);
   }

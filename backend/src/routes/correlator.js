@@ -210,6 +210,15 @@ router.post('/producer', schemaValidation(taskSchema.POST, 'body'), (req, res) =
   res.status(200).send();
 });
 
+router.get('/test', (req, res) => {
+  try {
+    correlatorDebounce();
+  } catch (error) {
+    console.log(error);
+  }
+  res.status(200).send();
+});
+
 // correlator
 /* router.all('/', () => {
   try {

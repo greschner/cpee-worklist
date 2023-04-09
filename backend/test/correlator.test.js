@@ -5,11 +5,11 @@ import * as testData from './testData.js';
 
 // eslint-disable-next-line no-promise-executor-return
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const correlatorRef = 'https://greschner.azurewebsites.net/backend/corr/producer';
+const correlatorRef = 'https://mygreschner.com/backend/corr/producer';
 const headers = {
   'content-id': 'producer',
 };
-const numberOfSamples = 40;
+const numberOfSamples = 50;
 const numberOfSampleDeletes = 2;
 const samples = [];
 
@@ -35,7 +35,7 @@ test('New Sample', async () => {
     const response = await axios.post(correlatorRef, sample, { headers });
     expect(response.status).toBe(200);
     // eslint-disable-next-line no-await-in-loop
-    await sleep(2000);
+    await sleep(1000);
   }
   /* const responses = await Promise.all(promises);
   responses.forEach((response) => {

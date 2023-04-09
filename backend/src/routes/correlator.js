@@ -9,7 +9,7 @@ import { SSEsendEventsToAll } from './services.js';
 const router = express.Router();
 
 // source from https://www.freecodecamp.org/news/javascript-debounce-example/
-function debounce(func, timeout = 2000) {
+function debounce(func, timeout = 1000) {
   let timer;
   return (...args) => {
     clearTimeout(timer);

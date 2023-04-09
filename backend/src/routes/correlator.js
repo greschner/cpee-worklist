@@ -8,6 +8,15 @@ import { SSEsendEventsToAll } from './services.js';
 
 const router = express.Router();
 
+// source from https://www.freecodecamp.org/news/javascript-debounce-example/
+function debounce(func, timeout = 2000) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+  };
+}
+
 const randomIntFromInterval = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
 const matchTask = (pid, body) => {
@@ -88,7 +97,7 @@ const correlator = () => {
                   console.error(error);
                 });
               }
-            }).catch((error) => { console.error(error); });
+            }).catch(console.error);
           } else {
             Promise.all([
               callbackInstance(callback, {
@@ -96,7 +105,7 @@ const correlator = () => {
                 timestamp: producedTask.timestamp,
               }), // callback to CPEE
               taskModel.findByIdAndDelete(id), // remove from task list
-            ]).catch((error) => { console.error(error); });
+            ]).catch(console.error);
           }
 
           /* Promise.all([
@@ -112,10 +121,12 @@ const correlator = () => {
 
           SSEsendEventsToAll(id, 'remove'); // sse
         }
-      }).catch((error) => { console.error(error); }); // match
-    })).catch((error) => { console.error(error); });
-  }).catch((error) => { console.error(error); }); // get all open tasks
+      }).catch(console.error); // match
+    })).catch(console.error);
+  }).catch(console.error); // get all open tasks
 };
+
+const correlatorDebounce = debounce(correlator);
 
 router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => {
   try {
@@ -157,11 +168,9 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
 
       newTask().then((task) => { // save new task to db
         logger.info(`New Task created: ${task}`);
-        SSEsendEventsToAll(task, 'add'); // sse
+        // SSEsendEventsToAll(task, 'add'); // sse
         // correlator();
-      }).catch((error) => {
-        console.error(error);
-      });
+      }).catch(console.error);
       res.setHeader('CPEE-CALLBACK', 'true');
     }
 
@@ -178,9 +187,9 @@ router.post('/', schemaValidation(taskSchema.POST, 'body'), (req, res, next) => 
       taskModel.findOneAndDelete({ pid: req.body.pid, instance: req.headers['cpee-instance'] }).then((task) => {
         if (task) {
           logger.info(`Delete Task: ${task}`);
-          callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' }).catch((error) => { console.error(error); });
+          callbackInstance(task.callback, 'nil', { 'Content-Type': 'text/plain' }).catch(console.error);
         }
-      }).catch((error) => { console.error(error); });
+      }).catch(console.error);
     }
   } catch (error) {
     console.log(error);
@@ -194,7 +203,7 @@ router.post('/producer', schemaValidation(taskSchema.POST, 'body'), (req, res) =
   producedModel.create(req.body)
     .then((t) => {
       logger.info(`New lab produced Task created: ${t}`);
-      correlator();
+      correlatorDebounce();
     })
     .catch(console.log);
 

@@ -2,7 +2,6 @@ import express from 'express';
 import createError from 'http-errors';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import pinoHttp from 'pino-http';
 import { receiveRoute, correlatorRoute, servicesRoute } from './routes/index.js';
 
 // create object of express module
@@ -14,9 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // setup cors
 app.use(cors());
-
-// http logger
-app.use(pinoHttp());
 
 // routes
 app.use('/', receiveRoute);

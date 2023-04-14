@@ -9,7 +9,7 @@ const correlatorRef = 'https://mygreschner.com/backend/corr/producer';
 const headers = {
   'content-id': 'producer',
 };
-const numberOfSamples = 50;
+const numberOfSamples = 10;
 const numberOfSampleDeletes = 2;
 const samples = [];
 

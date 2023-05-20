@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, hyperlink, EmbedBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import {
   abandonInstance, getCurrentInstances, getInstanceState, newInstanceURL,
   startInstance, getVisitLinkURL,
@@ -14,7 +14,7 @@ const newPlainInstanceEmbed = (data) => new EmbedBuilder()
   .addFields(
     { name: 'Instance', value: `${data['CPEE-INSTANCE']}` },
     { name: 'Instance UUID', value: `${data['CPEE-INSTANCE-UUID']}` },
-    { name: 'Instance URL', value: `${hyperlink(getVisitLinkURL(data['CPEE-INSTANCE-URL']))}` },
+    { name: 'Instance URL', value: `${getVisitLinkURL(data['CPEE-INSTANCE-URL'])}` },
   );
 
 export default {
@@ -123,7 +123,7 @@ export default {
         const plainInstance = instances.find(({ name }) => name === 'Lab Plain Instance');
 
         if (plainInstance?.state === 'running') {
-          message = embedWarning(`Plain instance is already running: ${hyperlink(getVisitLinkURL(plainInstance.url))}`);
+          message = embedWarning(`Plain instance is already running: ${getVisitLinkURL(plainInstance.url)}`);
         }
 
         if (!plainInstance) { // plain instance not found start new one
@@ -133,7 +133,7 @@ export default {
         console.log(plainInstance);
         if (['ready', 'stopped'].includes(plainInstance?.state)) { // start plain instance
           startInstance(plainInstance.url);
-          message = embedInformation(`Plain instance started: ${hyperlink(getVisitLinkURL(plainInstance.url))}`);
+          message = embedInformation(`Plain instance started: ${getVisitLinkURL(plainInstance.url)}`);
         }
       } catch (error) {
         console.error(error);

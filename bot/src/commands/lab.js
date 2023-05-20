@@ -1,6 +1,6 @@
 import {
   EmbedBuilder,
-  SlashCommandBuilder, hyperlink,
+  SlashCommandBuilder,
 } from 'discord.js';
 import { XMLParser } from 'fast-xml-parser';
 import axios from 'axios';
@@ -121,14 +121,14 @@ export default {
 
       message.addFields({
         name: `Plain instance [${plainInstance.instance}]`,
-        value: `URL: ${hyperlink(getVisitLink(plainInstance.instance))}
+        value: `URL: ${getVisitLink(plainInstance.instance)}
         Status: ${plainInstanceStatus.data}
         Created: ${dateFormatter(plainInstance.timestamp)}`,
       });
 
       message.addFields({
         name: `Finish wellplate subprocess [${plainSubInstance.instance}]`,
-        value: `URL: ${hyperlink(getVisitLink(plainSubInstance.instance))}
+        value: `URL: ${getVisitLink(plainSubInstance.instance)}
         Status: ${finishPlateStatus.data}
         Created: ${dateFormatter(plainSubInstance.timestamp)}`,
       });
@@ -140,7 +140,7 @@ export default {
           const { data: ts } = await axios.get(`${url}/properties/state/@changed/`);
           message.addFields({
             name: `${name}`,
-            value: `URL: ${hyperlink(getVisitLinkURL(url))}
+            value: `URL: ${getVisitLinkURL(url)}
               Status: ${state}
               Changed: ${dateFormatter(ts)}
               #Samples: ${samples.length}`,

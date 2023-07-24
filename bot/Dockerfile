@@ -13,7 +13,7 @@ ENV NODE_ENV=production
 # where available (npm@5+)
 COPY --chown=node:node package*.json ./
 
-RUN npm ci
+RUN npm ci --omit=dev
 
 # Bundle app source
 COPY --chown=node:node . .

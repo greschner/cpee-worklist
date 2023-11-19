@@ -1,4 +1,4 @@
-// created with lots of love by Jan André Greschner
+// created with lots of ❤️ by Jan André Greschner
 import express from 'express';
 import createError from 'http-errors';
 import dotenv from 'dotenv';
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 import db from './db.js';
 import logger from './logger.js';
 import {
-  BiRoute, ReceiveRoute, CorrelatorRoute, BaseDataRoute,
+  BiRoute, ReceiveRoute, BaseDataRoute,
 } from './routes/index.js';
 // import socket from './socketioClient';
 
@@ -18,7 +18,7 @@ import {
 dotenv.config();
 
 // connect to database
-db();
+db.connect();
 
 // eslint-disable-next-line no-underscore-dangle
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -40,7 +40,6 @@ app.use(cors());
 app.use('/log', ReceiveRoute);
 app.use('/bd', BaseDataRoute);
 app.use('/bi', BiRoute);
-app.use('/corr', CorrelatorRoute);
 app.use('/favicon.ico', express.static('public/favicon.png'));
 
 // catch 404 and forward to error handler

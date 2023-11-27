@@ -17,6 +17,8 @@ services:
     bot:
         build: ./bot
         container_name: bot
+        env_file:
+            - ./bot/.env
         restart: always            
 
 networks:

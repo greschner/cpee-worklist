@@ -17,7 +17,6 @@ export default {
       const data = await getStats(date);
       const dateStr = `${(`0${date.getDate()}`).slice(-2)}.${(`0${date.getMonth() + 1}`).slice(-2)}.${
         date.getFullYear()}`;
-      console.log(data);
       if (data) { // data is defined and has status property
         message = new EmbedBuilder()
           .setColor(0x0099FF)

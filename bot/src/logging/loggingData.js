@@ -78,7 +78,6 @@ const getStats = async (date) => {
   }
 
   const start = new Date(date.setHours(0, 0, 0, 0));
-  console.log(start);
   const end = new Date(start.getTime() + 86400000); // + 1 day
 
   const response = {

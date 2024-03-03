@@ -2,7 +2,7 @@ import express from 'express';
 import logger from '../logger.js';
 import { schemaValidation } from '../middleware/index.js';
 import { serviceSchema } from '../schemata/index.js';
-import { timeoutModel, timeoutsubModel } from '../model/index.js';
+import { taskModel, timeoutModel, timeoutsubModel } from '../model/index.js';
 import {
   getVisitLinkURL, callbackInstance, getCurrentInstances, abandonInstance,
 } from '../utils/cpee.js';
@@ -64,11 +64,13 @@ router.post('/abandon', schemaValidation(serviceSchema.POST_ABANDON, 'body'), (r
     if (plate) {
       console.log(`Well Plate UUID: ${plate.uuid}`); // remove
       abandonInstance(plate.url);
+      taskModel.deleteMany({ instanceUuid: plate.uuid });
       const samples = instances.filter(({ parent }) => parent === plate.uuid);
       console.log(samples); // remove
       if (samples.length > 0) {
-        samples.forEach(({ url }) => {
+        samples.forEach(({ url, uuid }) => {
           abandonInstance(url);
+          taskModel.deleteMany({ instanceUuid: uuid });
         });
       }
     }

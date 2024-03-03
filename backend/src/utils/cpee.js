@@ -1,4 +1,5 @@
 import FormData from 'form-data';
+import { XMLParser } from 'fast-xml-parser';
 import axios from './getAxios.js';
 import { taskModel, producedModel } from '../model/index.js';
 import logger from '../logger.js';
@@ -8,6 +9,9 @@ import logger from '../logger.js';
   console.log('Request: ', JSON.stringify(request, null, 2));
   return request;
 }); */
+
+const sleep = (ms) => new Promise((r) => { setTimeout(r, ms); });
+const cpeeURL = 'https://cpee.org/';
 
 const callbackInstance = (instance, body, headers = {}) => {
   if (!instance) {
@@ -21,7 +25,7 @@ const changeState = (id, value = 'running') => {
     return null;
   }
   return axios.put(
-    `https://cpee.org/flow/engine/${id}/properties/state/`,
+    `${id}/properties/state/`,
     new URLSearchParams({
       value,
     }),
@@ -35,7 +39,21 @@ const startInstance = (id) => changeState(id);
 
 const stopInstance = (id) => changeState(id, 'stopping');
 
-const abandonInstance = (id) => changeState(id, 'abandoned');
+const abandonInstance = async (id) => {
+  if (!id) {
+    throw new Error('Instance id undefined!');
+  }
+
+  const { data } = await axios.get(`${id}/properties/state/`);
+
+  if (data !== 'abandoned') {
+    if (data === 'running') {
+      await changeState(id, 'stopping');
+      await sleep(2000);
+    }
+    await changeState(id, 'abandoned');
+  }
+};
 
 const abandonInstances = (from, to) => {
   // const arr = [];
@@ -88,6 +106,23 @@ const newInstanceURL = (url, behavior = 'wait_running') => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     },
   );
+};
+
+const getInstanceInformation = (engine = 'https%3A%2F%2Fcpee.org%2Fflow%2Fengine%2F') => axios.get(`${cpeeURL}hub/server/dash/instances?engine=${engine}`);
+
+const getCurrentInstances = async (engine = 'https%3A%2F%2Fcpee.org%2Fflow%2Fengine%2F') => {
+  try {
+    const { data: cpeeInstancesXML } = await getInstanceInformation(engine);
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      ignoreDeclaration: true,
+      attributeNamePrefix: '',
+    });
+    const cpeeInstancesObj = parser.parse(cpeeInstancesXML);
+    return cpeeInstancesObj.instances.instance;
+  } catch (error) {
+    return console.error(error);
+  }
 };
 
 const matchTask = (pid, body) => {
@@ -152,5 +187,5 @@ const getVisitLinkURL = (url) => `https://cpee.org/flow/index.html?monitor=${url
 
 export {
   startInstance, stopInstance, abandonInstance, newInstanceXML, newInstanceURL, callbackInstance,
-  abandonInstances, changeState, correlator, getVisitLinkURL,
+  abandonInstances, changeState, correlator, getVisitLinkURL, getCurrentInstances,
 };

@@ -16,12 +16,6 @@ server.listen(PORT, () => {
   logger.info(`Server running in ${process.env.NODE_ENV} mode on port: ${PORT}`);
 });
 
-/* const res = await timeoutsubModel.find({});
-
-res.forEach(({callback}) => {
-  callbackInstance(callback, 'nil');
-}); */
-
 const gracefulStop = (signal) => {
   logger.info(`${signal} signal received. Shutting down...`);
   io.close(async () => {

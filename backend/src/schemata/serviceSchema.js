@@ -14,6 +14,9 @@ const schemas = {
     duration: Joi.number(),
     stop: Joi.string().valid('true'),
   }),
+  POST_ABANDON: Joi.object().keys({
+    plateid: Joi.string().required(),
+  }),
 };
 
 export default schemas;

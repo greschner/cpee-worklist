@@ -3,7 +3,9 @@ import logger from '../logger.js';
 import { schemaValidation } from '../middleware/index.js';
 import { serviceSchema } from '../schemata/index.js';
 import { timeoutModel, timeoutsubModel } from '../model/index.js';
-import { getVisitLinkURL, callbackInstance } from '../utils/cpee.js';
+import {
+  getVisitLinkURL, callbackInstance, getCurrentInstances, abandonInstance,
+} from '../utils/cpee.js';
 import { io } from '../socket.js';
 
 const router = express.Router();
@@ -51,6 +53,26 @@ router.post('/notifyall', schemaValidation(serviceSchema.POST_NOTIFYALL, 'body')
   logger.info({ event, LEVEL: level, message }, 'POST /notifyall:');
   io.emit('message', { level, message });
   // SSEsendEventsToAll({ level, message }, event);
+  res.status(200).send();
+});
+
+router.post('/abandon', schemaValidation(serviceSchema.POST_ABANDON, 'body'), (req, res) => {
+  const { plateid } = req.body;
+  logger.info(`PlateID to abandon: ${plateid}`);
+  getCurrentInstances().then((instances) => {
+    const plate = instances.find(({ name }) => name === `Well Plate: ${plateid}`);
+    if (plate) {
+      console.log(`Well Plate UUID: ${plate.uuid}`); // remove
+      abandonInstance(plate.url);
+      const samples = instances.filter(({ parent }) => parent === plate.uuid);
+      console.log(samples); // remove
+      if (samples.length > 0) {
+        samples.forEach(({ url }) => {
+          abandonInstance(url);
+        });
+      }
+    }
+  }).catch(console.log);
   res.status(200).send();
 });
 

@@ -50,7 +50,7 @@ const correlator = () => {
     }) => {
       matchTask(pid, body).then((producedTask) => {
         if (producedTask) {
-          const cArr = ['1', '2'].includes(pid);
+          const cArr = ['1', '2', '12'].includes(pid);
 
           if (pid !== '6') {
             producedModel.findByIdAndDelete(producedTask._id).then((producer) => {

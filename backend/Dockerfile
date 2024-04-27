@@ -1,23 +1,21 @@
-FROM node:21-alpine
+FROM node:22-alpine
 
-# Create app directory
+# Set working directory
 WORKDIR /usr/src/app
 
-# set environment variables
-ENV PORT=8000
-ENV TZ=Europe/Vienna
-ENV NODE_ENV=production
-
-# Install app dependencies
+# Install app dependencies using cache effectively
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
 COPY --chown=node:node package*.json ./
-
 RUN npm ci --omit=dev
 
-# Bundle app source
+# Copy the rest of the application source
 COPY --chown=node:node . .
 
+# Environment variables
+ENV PORT=8000 TZ=Europe/Vienna NODE_ENV=production
+
+# Non-root user for better security
 USER node
 
+# Start the application
 CMD [ "node","src/index.js" ]

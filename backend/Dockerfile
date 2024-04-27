@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 # Install app dependencies using cache effectively
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY --chown=node:node package*.json ./
+
 RUN npm ci --omit=dev
 
 # Copy the rest of the application source

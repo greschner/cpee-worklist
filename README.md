@@ -6,6 +6,19 @@ This project is a worklist management system for the CPEE (Customer Project Exec
 
 ![Alt](https://repobeats.axiom.co/api/embed/1b203ae4a51d46917ea024ca49e87fcaa3253d84.svg "Repobeats analytics image")
 
+## Overview
+
+1. [Backend Service:](backend) Encapsulates the correlator. Mainly communicates with the CPEE.
+2. [Cloud Process Execution Engine (CPEE):](https://cpee.org/) Executes and manages the workflow.
+3. [Database:](https://hub.docker.com/_/mongo) MongoDB instance that stores all the data.
+4. [Lab Bot:](bot) Handles notification and alerting. Can be also utilized for reporting and
+monitoring proposes.
+5. [Frontend:](frontend) User interface (GUI) for reporting and visualization of the log data.
+6. [Logging Service:](logging) Receives all raw log data from various sources and stores them
+in the database. Notifies the backend service when a new log has been received.
+7. [Reverse Proxy (NGINX):](nginx) Hides backend and frontend service from being accessed directly.
+8. [Process Models:](<process models>) Contains the lab process models for the CPEE
+
 ## Features
 
 - Create and manage worklists
@@ -15,12 +28,12 @@ This project is a worklist management system for the CPEE (Customer Project Exec
 
 ## Installation
 
-To install and run the project locally, follow these steps:
+To install and run the project locally using Docker Compose, follow these steps:
 
-1. Clone the repository: `$ git clone https://github.com/your-username/cpee-worklist.git`
-2. Install dependencies: `$ npm install`
-3. Configure the database connection in `config.js`
-4. Start the server: `$ npm start`
+1. Clone the repository: `$ git clone https://github.com/greschner/cpee-worklist.git`
+2. Navigate to the project directory: `$ cd cpee-worklist`
+3. Build the Docker images: `$ docker compose build`
+4. Start the Docker containers: `$ docker compose up`
 
 ## Usage
 

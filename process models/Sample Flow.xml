@@ -1,0 +1,476 @@
+<?xml version="1.0"?>
+<testset xmlns="http://cpee.org/ns/properties/2.0">
+  <executionhandler>ruby</executionhandler>
+  <dataelements/>
+  <endpoints>
+    <timeout>https://cpee.org/services/timeout.php</timeout>
+    <subprocess>https://cpee.org/flow/start/url/</subprocess>
+    <receive>https-get://cpee.org/ing/correlators/message/receive/</receive>
+    <send>https-post://cpee.org/ing/correlators/message/send/</send>
+    <correlator>https://mygreschner.com//backend/corr</correlator>
+    <timeout2>https://mygreschner.com/backend/services/timeout2</timeout2>
+    <notify>https://mygreschner.com/backend/services/notifyall</notify>
+  </endpoints>
+  <attributes>
+    <info>Sample Flow</info>
+    <creator>Christine Ashcreek</creator>
+    <author>Christine Ashcreek</author>
+    <modeltype>CPEE</modeltype>
+    <theme>extended</theme>
+    <design_dir>Theses.dir/Jan Greschner.dir/</design_dir>
+    <design_stage>development</design_stage>
+  </attributes>
+  <description>
+    <description xmlns="http://cpee.org/ns/description/1.0">
+      <_generic>
+        <rule>RULE ProcessTimeLimit MATCH state-&gt;change-&gt;state=&#x201D;finished&#x201D; CONDITION DURATION(THIS)&gt;=24 ACTION NOTIFY(&#x201C;Process duration exceeded 24 hours&#x201D;)</rule>
+      </_generic>
+      <_shifting/>
+      <_context_data_analysis>
+        <probes/>
+        <ips/>
+      </_context_data_analysis>
+      <parallel wait="-1" cancel="last">
+        <parallel_branch pass="" local="">
+          <parallel wait="-1" cancel="last">
+            <parallel_branch pass="" local="">
+              <choose mode="exclusive">
+                <alternative condition="data.sample['position'].to_i &gt; 1">
+                  <_probability>
+                    <_probability_min/>
+                    <_probability_max/>
+                    <_probability_avg/>
+                  </_probability>
+                  <call id="a4" endpoint="correlator">
+                    <parameters>
+                      <label>F1: match patient data</label>
+                      <method>:post</method>
+                      <arguments>
+                        <pid>6</pid>
+                        <sampleid>!data.sample['sampleid']</sampleid>
+                      </arguments>
+                    </parameters>
+                    <code>
+                      <prepare/>
+                      <finalize output="result"/>
+                      <update output="result"/>
+                      <rescue output="result"/>
+                    </code>
+                    <annotations>
+                      <_generic>
+                        <rule>RULE SkipMatchPatientData MATCH activity-&gt;calling-&gt;content-&gt;activity=&#x201D;a4&#x201D; CONDITION THIS-&gt;data-&gt;sample-&gt;position&gt;1 ACTION ACK ELSE ACTION SKIP</rule>
+                      </_generic>
+                      <_timing>
+                        <_timing_weight/>
+                        <_timing_avg/>
+                        <explanations/>
+                      </_timing>
+                      <_shifting>
+                        <_shifting_type>Duration</_shifting_type>
+                      </_shifting>
+                      <_context_data_analysis>
+                        <probes/>
+                        <ips/>
+                      </_context_data_analysis>
+                      <report>
+                        <url/>
+                      </report>
+                      <_notes>
+                        <_notes_general/>
+                      </_notes>
+                    </annotations>
+                    <documentation>
+                      <input/>
+                      <output/>
+                      <implementation>
+                        <description/>
+                      </implementation>
+                      <code>
+                        <description/>
+                      </code>
+                    </documentation>
+                  </call>
+                </alternative>
+                <otherwise/>
+              </choose>
+            </parallel_branch>
+            <parallel_branch pass="" local="">
+              <call id="a6" endpoint="receive">
+                <parameters>
+                  <label>F2: wait for plate validation</label>
+                  <arguments>
+                    <id>!data.sample['plateid'] + "a"</id>
+                    <ttl>0</ttl>
+                    <delete>false</delete>
+                  </arguments>
+                </parameters>
+                <code>
+                  <prepare/>
+                  <finalize output="result"/>
+                  <update output="result"/>
+                  <rescue output="result"/>
+                </code>
+                <annotations>
+                  <_generic/>
+                  <_timing>
+                    <_timing_weight/>
+                    <_timing_avg/>
+                    <explanations/>
+                  </_timing>
+                  <_shifting>
+                    <_shifting_type>Duration</_shifting_type>
+                  </_shifting>
+                  <_context_data_analysis>
+                    <probes/>
+                    <ips/>
+                  </_context_data_analysis>
+                  <report>
+                    <url/>
+                  </report>
+                  <_notes>
+                    <_notes_general/>
+                  </_notes>
+                </annotations>
+                <documentation>
+                  <input/>
+                  <output/>
+                  <implementation>
+                    <description/>
+                  </implementation>
+                  <code>
+                    <description/>
+                  </code>
+                </documentation>
+              </call>
+              <call id="a1" endpoint="correlator">
+                <parameters>
+                  <label>F3: receive sample state</label>
+                  <method>:post</method>
+                  <arguments>
+                    <pid>13</pid>
+                    <sampleid>!data.sample['sampleid']</sampleid>
+                    <plateid>!data.sample['plateid']</plateid>
+                    <position>!data.sample['position']</position>
+                  </arguments>
+                </parameters>
+                <code>
+                  <prepare/>
+                  <finalize output="result">data.state = result</finalize>
+                  <update output="result"/>
+                  <rescue output="result"/>
+                </code>
+                <annotations>
+                  <_generic/>
+                  <_timing>
+                    <_timing_weight/>
+                    <_timing_avg/>
+                    <explanations/>
+                  </_timing>
+                  <_shifting>
+                    <_shifting_type>Duration</_shifting_type>
+                  </_shifting>
+                  <_context_data_analysis>
+                    <probes/>
+                    <ips/>
+                  </_context_data_analysis>
+                  <report>
+                    <url/>
+                  </report>
+                  <_notes>
+                    <_notes_general/>
+                  </_notes>
+                </annotations>
+                <documentation>
+                  <input/>
+                  <output/>
+                  <implementation>
+                    <description/>
+                  </implementation>
+                  <code>
+                    <description/>
+                  </code>
+                </documentation>
+              </call>
+            </parallel_branch>
+          </parallel>
+          <choose mode="exclusive">
+            <alternative condition="data.state['valid']">
+              <parallel wait="-1" cancel="last">
+                <parallel_branch pass="" local="">
+                  <choose mode="exclusive">
+                    <alternative condition="data.sample['position'].to_i &gt; 1">
+                      <_probability>
+                        <_probability_min/>
+                        <_probability_max/>
+                        <_probability_avg/>
+                      </_probability>
+                      <call id="a7" endpoint="correlator">
+                        <parameters>
+                          <label>F4: export to EMS</label>
+                          <method>:post</method>
+                          <arguments>
+                            <pid>8</pid>
+                            <sampleid>!data.sample['sampleid']</sampleid>
+                          </arguments>
+                        </parameters>
+                        <code>
+                          <prepare/>
+                          <finalize output="result"/>
+                          <update output="result"/>
+                          <rescue output="result"/>
+                        </code>
+                        <annotations>
+                          <_generic/>
+                          <_timing>
+                            <_timing_weight/>
+                            <_timing_avg/>
+                            <explanations/>
+                          </_timing>
+                          <_shifting>
+                            <_shifting_type>Duration</_shifting_type>
+                          </_shifting>
+                          <_context_data_analysis>
+                            <probes/>
+                            <ips/>
+                          </_context_data_analysis>
+                          <report>
+                            <url/>
+                          </report>
+                          <_notes>
+                            <_notes_general/>
+                          </_notes>
+                        </annotations>
+                        <documentation>
+                          <input/>
+                          <output/>
+                          <implementation>
+                            <description/>
+                          </implementation>
+                          <code>
+                            <description/>
+                          </code>
+                        </documentation>
+                      </call>
+                    </alternative>
+                    <otherwise/>
+                  </choose>
+                </parallel_branch>
+                <parallel_branch pass="" local="">
+                  <call id="a8" endpoint="correlator">
+                    <parameters>
+                      <label>F5: export result</label>
+                      <method>:post</method>
+                      <arguments>
+                        <pid>9</pid>
+                        <sampleid>!data.sample['sampleid']</sampleid>
+                      </arguments>
+                    </parameters>
+                    <code>
+                      <prepare/>
+                      <finalize output="result">data.result = result;</finalize>
+                      <update output="result"/>
+                      <rescue output="result"/>
+                    </code>
+                    <annotations>
+                      <_generic/>
+                      <_timing>
+                        <_timing_weight/>
+                        <_timing_avg/>
+                        <explanations/>
+                      </_timing>
+                      <_shifting>
+                        <_shifting_type>Duration</_shifting_type>
+                      </_shifting>
+                      <_context_data_analysis>
+                        <probes/>
+                        <ips/>
+                      </_context_data_analysis>
+                      <report>
+                        <url/>
+                      </report>
+                      <_notes>
+                        <_notes_general/>
+                      </_notes>
+                    </annotations>
+                    <documentation>
+                      <input/>
+                      <output/>
+                      <implementation>
+                        <description/>
+                      </implementation>
+                      <code>
+                        <description/>
+                      </code>
+                    </documentation>
+                  </call>
+                </parallel_branch>
+              </parallel>
+              <_probability>
+                <_probability_min/>
+                <_probability_max/>
+                <_probability_avg/>
+              </_probability>
+            </alternative>
+            <otherwise/>
+          </choose>
+          <call id="a5" endpoint="timeout2">
+            <parameters>
+              <label>G1: callback timeout</label>
+              <method>:post</method>
+              <arguments>
+                <stop>true</stop>
+              </arguments>
+            </parameters>
+            <code>
+              <prepare/>
+              <finalize output="result"/>
+              <update output="result"/>
+              <rescue output="result"/>
+            </code>
+            <annotations>
+              <_generic/>
+              <_timing>
+                <_timing_weight/>
+                <_timing_avg/>
+                <explanations/>
+              </_timing>
+              <_shifting>
+                <_shifting_type>Duration</_shifting_type>
+              </_shifting>
+              <_context_data_analysis>
+                <probes/>
+                <ips/>
+              </_context_data_analysis>
+              <report>
+                <url/>
+              </report>
+              <_notes>
+                <_notes_general/>
+              </_notes>
+            </annotations>
+            <documentation>
+              <input/>
+              <output/>
+              <implementation>
+                <description/>
+              </implementation>
+              <code>
+                <description/>
+              </code>
+            </documentation>
+          </call>
+        </parallel_branch>
+        <parallel_branch pass="" local="">
+          <call id="a2" endpoint="timeout2">
+            <parameters>
+              <label>G2: timeout</label>
+              <method>:post</method>
+              <arguments>
+                <duration>25200</duration>
+              </arguments>
+            </parameters>
+            <code>
+              <prepare/>
+              <finalize output="result">data.timeout = result</finalize>
+              <update output="result"/>
+              <rescue output="result"/>
+            </code>
+            <annotations>
+              <_generic/>
+              <_timing>
+                <_timing_weight/>
+                <_timing_avg/>
+                <explanations/>
+              </_timing>
+              <_shifting>
+                <_shifting_type>Duration</_shifting_type>
+              </_shifting>
+              <_context_data_analysis>
+                <probes/>
+                <ips/>
+              </_context_data_analysis>
+              <report>
+                <url/>
+              </report>
+              <_notes>
+                <_notes_general/>
+              </_notes>
+            </annotations>
+            <documentation>
+              <input/>
+              <output/>
+              <implementation>
+                <description/>
+              </implementation>
+              <code>
+                <description/>
+              </code>
+            </documentation>
+          </call>
+          <choose mode="exclusive">
+            <alternative condition="data.timeout != &quot;nil&quot;">
+              <_probability>
+                <_probability_min/>
+                <_probability_max/>
+                <_probability_avg/>
+              </_probability>
+              <call id="a3" endpoint="notify">
+                <parameters>
+                  <label>G3: send notification</label>
+                  <method>:post</method>
+                  <arguments>
+                    <level>WARN</level>
+                    <message>Sample: [#{data.sample['sampleid']}](https://cpee.org/flow/edit.html?monitor=#{cpee.instance_url}) on Plate: [#{data.sample['plateid']}](https://cpee.org/flow/edit.html?monitor=#{data.plate_instance_url}) with position: #{data.sample['position']} exceeded the timeframe! </message>
+                  </arguments>
+                </parameters>
+                <code>
+                  <prepare/>
+                  <finalize output="result"/>
+                  <update output="result"/>
+                  <rescue output="result"/>
+                </code>
+                <annotations>
+                  <_generic/>
+                  <_timing>
+                    <_timing_weight/>
+                    <_timing_avg/>
+                    <explanations/>
+                  </_timing>
+                  <_shifting>
+                    <_shifting_type>Duration</_shifting_type>
+                  </_shifting>
+                  <_context_data_analysis>
+                    <probes/>
+                    <ips/>
+                  </_context_data_analysis>
+                  <report>
+                    <url/>
+                  </report>
+                  <_notes>
+                    <_notes_general/>
+                  </_notes>
+                </annotations>
+                <documentation>
+                  <input/>
+                  <output/>
+                  <implementation>
+                    <description/>
+                  </implementation>
+                  <code>
+                    <description/>
+                  </code>
+                </documentation>
+              </call>
+            </alternative>
+            <otherwise/>
+          </choose>
+        </parallel_branch>
+      </parallel>
+    </description>
+  </description>
+  <transformation>
+    <description type="copy"/>
+    <dataelements type="none"/>
+    <endpoints type="none"/>
+  </transformation>
+</testset>

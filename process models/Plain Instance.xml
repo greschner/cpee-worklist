@@ -1,0 +1,348 @@
+<?xml version="1.0"?>
+<testset xmlns="http://cpee.org/ns/properties/2.0">
+  <executionhandler>ruby</executionhandler>
+  <dataelements>
+    <createdids>[]</createdids>
+    <finishedids>[]</finishedids>
+    <deletedids>[]</deletedids>
+  </dataelements>
+  <endpoints>
+    <timeout>https://cpee.org/services/timeout.php</timeout>
+    <subprocess>https://cpee.org/flow/start/url/</subprocess>
+    <correlator>https://mygreschner.com/backend/corr</correlator>
+    <timeout2>https://cpee.org/services/powernap.php</timeout2>
+    <pcheck>https://mygreschner.com/backend/services/pcheck</pcheck>
+    <receive>https-get://cpee.org/ing/correlators/message/receive/</receive>
+    <notify>https://mygreschner.com/backend/services/notifyall</notify>
+  </endpoints>
+  <attributes>
+    <modeltype>CPEE</modeltype>
+    <info>Lab Plain Instance</info>
+    <creator>Jan Greschner</creator>
+    <author>Christine Ashcreek</author>
+    <guarded>none</guarded>
+    <guarded_id/>
+    <model_uuid>1f759a66-fff0-4187-bdb3-7f7b8bc7a836</model_uuid>
+    <model_version/>
+    <theme>extended</theme>
+    <design_dir>Theses.dir/Jan Greschner.dir/</design_dir>
+    <design_stage>development</design_stage>
+  </attributes>
+  <description>
+    <description xmlns="http://cpee.org/ns/description/1.0">
+      <parallel wait="-1" cancel="last">
+        <parallel_branch>
+          <call id="a12" endpoint="subprocess">
+            <parameters>
+              <label>spawn delete well plate flow</label>
+              <method>:post</method>
+              <arguments>
+                <behavior>fork_running</behavior>
+                <url>https://cpee.org/hub/server/Theses.dir/Jan%20Greschner.dir/Lab%20Delete%20Well%20Plate.xml</url>
+                <init>
+                  <topuuid>!attributes.uuid</topuuid>
+                </init>
+                <endpoints/>
+                <attributes/>
+                <customization/>
+              </arguments>
+            </parameters>
+            <annotations>
+              <_generic/>
+              <_timing>
+                <_timing_weight/>
+                <_timing_avg/>
+                <explanations/>
+              </_timing>
+              <_shifting>
+                <_shifting_type>Duration</_shifting_type>
+              </_shifting>
+              <_context_data_analysis>
+                <probes/>
+                <ips/>
+              </_context_data_analysis>
+              <report>
+                <url/>
+              </report>
+              <_notes>
+                <_notes_general/>
+              </_notes>
+            </annotations>
+            <documentation>
+              <input/>
+              <output/>
+              <implementation>
+                <description/>
+              </implementation>
+            </documentation>
+          </call>
+        </parallel_branch>
+        <parallel_branch>
+          <call id="a10" endpoint="subprocess">
+            <parameters>
+              <label>spawn finish well plate flow</label>
+              <method>:post</method>
+              <arguments>
+                <behavior>fork_running</behavior>
+                <url>https://cpee.org/hub/server/Theses.dir/Jan%20Greschner.dir/Lab%20Finish%20Well%20Plate.xml</url>
+                <init>
+                  <topuuid>!attributes.uuid</topuuid>
+                </init>
+                <endpoints/>
+                <attributes/>
+                <customization/>
+              </arguments>
+            </parameters>
+            <annotations>
+              <_generic/>
+              <_timing>
+                <_timing_weight/>
+                <_timing_avg/>
+                <explanations/>
+              </_timing>
+              <_shifting>
+                <_shifting_type>Duration</_shifting_type>
+              </_shifting>
+              <_context_data_analysis>
+                <probes/>
+                <ips/>
+              </_context_data_analysis>
+              <report>
+                <url/>
+              </report>
+              <_notes>
+                <_notes_general/>
+              </_notes>
+            </annotations>
+            <documentation>
+              <input/>
+              <output/>
+              <implementation>
+                <description/>
+              </implementation>
+            </documentation>
+          </call>
+        </parallel_branch>
+        <parallel_branch>
+          <call id="a11" endpoint="subprocess">
+            <parameters>
+              <label>spawn new well plate flow</label>
+              <method>:post</method>
+              <arguments>
+                <behavior>fork_running</behavior>
+                <url>https://cpee.org/hub/server/Theses.dir/Jan%20Greschner.dir/Lab%20New%20Well%20Plate.xml</url>
+                <init>
+                  <topuuid>!attributes.uuid</topuuid>
+                </init>
+                <endpoints/>
+                <attributes/>
+                <customization/>
+              </arguments>
+            </parameters>
+            <annotations>
+              <_generic/>
+              <_timing>
+                <_timing_weight/>
+                <_timing_avg/>
+                <explanations/>
+              </_timing>
+              <_shifting>
+                <_shifting_type>Duration</_shifting_type>
+              </_shifting>
+              <_context_data_analysis>
+                <probes/>
+                <ips/>
+              </_context_data_analysis>
+              <report>
+                <url/>
+              </report>
+              <_notes>
+                <_notes_general/>
+              </_notes>
+            </annotations>
+            <documentation>
+              <input/>
+              <output/>
+              <implementation>
+                <description/>
+              </implementation>
+            </documentation>
+          </call>
+        </parallel_branch>
+        <parallel_branch>
+          <loop mode="pre_test" condition="true">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+            <call id="a3" endpoint="receive">
+              <parameters>
+                <label>receive finishedids</label>
+                <arguments>
+                  <id>!attributes.uuid + "a"</id>
+                  <ttl>0</ttl>
+                  <delete>true</delete>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result">data.finishedids &lt;&lt; result['message']</finalize>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+          </loop>
+        </parallel_branch>
+        <parallel_branch>
+          <loop mode="pre_test" condition="true">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+            <call id="a1" endpoint="receive">
+              <parameters>
+                <label>receive createdids</label>
+                <arguments>
+                  <id>!attributes.uuid + "b"</id>
+                  <ttl>0</ttl>
+                  <delete>true</delete>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result">data.createdids &lt;&lt; result['message']</finalize>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+          </loop>
+        </parallel_branch>
+        <parallel_branch>
+          <loop mode="pre_test" condition="true">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+            <call id="a4" endpoint="receive">
+              <parameters>
+                <label>receive deletedids</label>
+                <arguments>
+                  <id>!attributes.uuid + "c"</id>
+                  <ttl>0</ttl>
+                  <delete>true</delete>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result">data.deletedids &lt;&lt; result['message']</finalize>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+          </loop>
+        </parallel_branch>
+      </parallel>
+    </description>
+  </description>
+  <transformation>
+    <description type="copy"/>
+    <dataelements type="none"/>
+    <endpoints type="none"/>
+  </transformation>
+</testset>

@@ -1,9 +1,9 @@
 import { io } from 'socket.io-client';
-import { baseURL } from './config.js';
+import { baseURL, socketPath } from './config.js';
 import logger from './logger.js';
 import { logMessage } from './bot.js';
 
-const socket = io(baseURL, { path: '/backend/socket.io' });
+const socket = io(baseURL, { path: socketPath });
 
 socket.on('connect', () => {
   logger.info(`Connected: ${socket.id}`);

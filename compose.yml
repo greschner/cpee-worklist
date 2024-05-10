@@ -1,0 +1,69 @@
+services:
+    backend:
+        build: ./backend
+        container_name: backend
+        restart: always
+        depends_on:
+            - "database"
+        environment:
+            - MONGO_DB_URI=${MONGO_DB_URI}
+
+    bot:
+        build: ./bot
+        container_name: bot
+        restart: always
+        depends_on:
+            - "backend"
+            - "database"
+        environment:
+            - BOT_TOKEN=${BOT_TOKEN}
+            - CLIENT_ID=${CLIENT_ID}
+            - MONGO_DB_URI=${MONGO_DB_URI}
+
+    frontend:
+        build: ./frontend
+        container_name: frontend
+        restart: always
+
+    logging:
+        build: ./logging
+        container_name: logging
+        restart: always
+        depends_on:
+            - "database"
+        environment:
+            - MONGO_DB_URI=${MONGO_DB_URI}
+
+    database:
+        build: ./init.d
+        restart: always
+        command: --bind_ip_all --keyFile /etc/mongo-keyfile --replSet rs0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+            - MONGO_INITDB_DATABASE=lab
+        volumes:
+            - ./init.d:/docker-entrypoint-initdb.d/
+            - db:/data/db    
+        ports:
+            - "27017:27017"
+
+    replicaSetup:
+        image: mongo
+        depends_on:
+            - database
+        entrypoint: ["/bin/sh","-c","sleep 4 && mongosh mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@database:27017 --eval \"rs.initiate({ _id : 'rs0', members: [{ _id: 0, host: 'database:27017' }]});\""]             
+
+    nginx:
+        build: ./nginx
+        container_name: nginx
+        restart: always
+        depends_on:
+            - "frontend"
+            - "backend"
+            - "logging"
+        ports:
+            - "80:80"
+    
+volumes:
+    db:

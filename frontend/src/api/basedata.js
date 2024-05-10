@@ -2,7 +2,8 @@ import axios from 'axios';
 
 export default {
   getBD() {
-    return axios.get(process.env.VUE_APP_BD_SERVICE);
+    const baseURL = process.env.VUE_APP_BD_SERVICE || 'http://localhost:80/logging/bd';
+    return axios.get(baseURL);
   },
   getBasedata(data) {
     const nameFilter = data.map(({ id, label }) => ({

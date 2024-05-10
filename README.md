@@ -1,6 +1,6 @@
-# Implementation of a Process-based Approach for Data Collection and Conformance Checking of Testing Settings
+# Implementation of a process-based Approach for Data Collection and Conformance Checking of Testing Settings
 
-This project is a worklist management system for the CPEE (Customer Project Execution Environment) platform. It allows users to create, update, and track worklists for various projects.
+This project is a worklist management system for the CPEE (Cloud Process Execution Engine) in the laboratory domain. It allows users to create, update, and track worklists for tests against SARS-CoV-2.
 
 ## Repository Insights
 
@@ -19,29 +19,24 @@ in the database. Notifies the backend service when a new log has been received.
 7. [Reverse Proxy (NGINX):](nginx) Hides backend and frontend service from being accessed directly.
 8. [Process Models:](<process models>) Contains the lab process models for the CPEE
 
-## Features
-
-- Create and manage worklists
-- Assign tasks to team members
-- Track progress and completion status
-- Generate reports and analytics
-
 ## Installation
 
 To install and run the project locally using Docker Compose, follow these steps:
 
 1. Clone the repository: `$ git clone https://github.com/greschner/cpee-worklist.git`
 2. Navigate to the project directory: `$ cd cpee-worklist`
+3. Fill out the environment variables in the `.env.template` file and rename it to `.env`.
 3. Build the Docker images: `$ docker compose build`
 4. Start the Docker containers: `$ docker compose up`
 
-## Usage
+## Frontend Usage
 
-1. Access the application at `http://localhost:3000`
-2. Sign up or log in with your existing account
-3. Create a new worklist or select an existing one
-4. Add tasks, assign them to team members, and track progress
-5. Generate reports and analytics to monitor project performance
+#### Access the Frontend at `http://localhost:80`
+
+- Generate reports and analytics to monitor lab performance
+- Search after specific well plates and samples to view their log history
+- Export log data either in CSV or JSON format
+- View open CPEE tasks which are waiting for callback
 
 ## Contributing
 

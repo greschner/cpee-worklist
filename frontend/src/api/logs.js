@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const sampleURL = process.env.VUE_APP_LOGGING_SERVICE;
-const sampleURLBi = process.env.VUE_APP_BI_SERVICE;
+const sampleURL = process.env.VUE_APP_LOGGING_SERVICE || 'http://localhost:80/logging/log';
+const sampleURLBi = process.env.VUE_APP_BI_SERVICE || 'http://localhost:80/logging/bi';
 
 export default {
   getLogs(params) {

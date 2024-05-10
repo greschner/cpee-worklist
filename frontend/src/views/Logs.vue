@@ -320,7 +320,8 @@ export default {
     downloadCSVData,
     downloadJsonData,
     setupStream() {
-      es = new EventSource(process.env.VUE_APP_SSE_LOGS);
+      const sseSource = process.env.VUE_APP_SSE_LOGS || 'http://localhost:80/logging/log/sse';
+      es = new EventSource(sseSource);
 
       es.onmessage = (event) => {
         if (this.pagination.currentpage === 1 && !this.sort.field

@@ -9,6 +9,8 @@ import { crudMid, idValMid, schemaValMid } from '../middleware/index.js';
 
 const router = express.Router();
 
+const correlator = process.env.CORRELATOR ?? 'http://backend:8000/corr/producer';
+
 let clients = [];
 
 const sendEventsToAll = (data) => {
@@ -47,7 +49,7 @@ router.post('/', schemaValMid(receiveSchema.POST, 'body'), crudMid(async ({ body
   const { name, id: pid } = body;
   if (tempArr.includes(body.id) && !/^(CF|7)/.test(body.body.sampleid)) {
     logger.info(`Send produced task: ${JSON.stringify(body)}`);
-    axios.post(process.env.CORRELATOR, {
+    axios.post(correlator, {
       name,
       pid,
       body: body.body,
@@ -96,7 +98,7 @@ router.get('/', crudMid(async ({
     return { $sortByCount: `$${groupby}` };
   };
 
-  const isTrueDistinct = (distinct === 'true');
+  // const isTrueDistinct = (distinct === 'true');
 
   const q = { // match
     ...id && { id: { $in: Array.isArray(id) ? id : [id] } },
